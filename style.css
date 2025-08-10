@@ -1,189 +1,169 @@
-/* Importar Inter y Roboto desde Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto:wght@400;700&display=swap');
 
-body {
-  background: #f5f9f9;
-  color: #111;
-  font-family: 'Inter', 'Roboto', Arial, system-ui, -apple-system, Segoe UI, Helvetica, sans-serif;
-  line-height: 1.5;
+/*
+  Mini-CRM B2B - Estilos modernos y responsivos
+  Autor: martinbeasnunez
+*/
+
+:root {
+  --color-bg: #f7fafd;
+  --color-primary: #2563eb;
+  --color-accent: #60a5fa;
+  --color-table-header: #e0e7ef;
+  --color-table-row: #ffffff;
+  --color-table-alt: #f1f5fb;
+  --color-border: #dbeafe;
+  --color-btn-hover: #1d4ed8;
+  --color-btn-active: #2563eb;
+  --color-text: #22223b;
 }
 
-/* Estilos para botones */
-button,
-.btn {
-  background-color: #0db4b9;
-  color: #fff;
-  font-family: inherit;
+body {
+  background: var(--color-bg);
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  color: var(--color-text);
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  padding: 2rem 0 1rem 0;
+  text-align: center;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-primary);
+}
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.nav-btn {
+  background: var(--color-table-header);
   border: none;
   border-radius: 6px;
-  padding: 0.6em 1.2em;
+  padding: 0.7rem 1.5rem;
   font-size: 1rem;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-weight: 500;
+}
 
-  /*
-    Mini-CRM B2B - Estilos modernos y responsivos
-    Autor: martinbeasnunez
-  */
+.nav-btn:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
 
-  :root {
-    --color-bg: #f7fafd;
-    --color-primary: #2563eb;
-    --color-accent: #60a5fa;
-    --color-table-header: #e0e7ef;
-    --color-table-row: #ffffff;
-    --color-table-alt: #f1f5fb;
-    --color-border: #dbeafe;
-    --color-btn-hover: #1d4ed8;
-    --color-btn-active: #2563eb;
-    --color-text: #22223b;
-  }
+.nav-btn.active {
+  background: var(--color-btn-active);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+}
 
-  body {
-    background: var(--color-bg);
-    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-    color: var(--color-text);
-    margin: 0;
-    padding: 0;
-  }
+.filter-container {
+  text-align: right;
+  margin-bottom: 1rem;
+}
 
-  header {
-    padding: 2rem 0 1rem 0;
-    text-align: center;
-  }
+#lead-filter {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 250px;
+  max-width: 100%;
+}
 
-  h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin: 0;
-    color: var(--color-primary);
-  }
+section {
+  max-width: 900px;
+  margin: 0 auto 2rem auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.04);
+  padding: 2rem;
+}
 
-  .navbar {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
+.hidden {
+  display: none !important;
+}
 
-  .nav-btn {
-    background: var(--color-table-header);
-    border: none;
-    border-radius: 6px;
-    padding: 0.7rem 1.5rem;
-    font-size: 1rem;
-    color: var(--color-primary);
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    font-weight: 500;
-  }
+#leads-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 1rem;
+}
 
-  .nav-btn:hover {
-    background: var(--color-accent);
-    color: #fff;
-  }
+#leads-table th {
+  background: var(--color-table-header);
+  color: var(--color-primary);
+  font-weight: 600;
+  padding: 0.8rem;
+  border-bottom: 2px solid var(--color-border);
+  text-align: left;
+}
 
-  .nav-btn.active {
-    background: var(--color-btn-active);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(37,99,235,0.08);
-  }
+#leads-table td {
+  background: var(--color-table-row);
+  padding: 0.7rem;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.2s;
+}
 
-  .filter-container {
-    text-align: right;
-    margin-bottom: 1rem;
-  }
+#leads-table tr:nth-child(even) td {
+  background: var(--color-table-alt);
+}
 
-  #lead-filter {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    font-size: 1rem;
-    width: 250px;
-    max-width: 100%;
-  }
+#leads-table tbody tr:hover td {
+  background: var(--color-accent);
+  color: #fff;
+}
 
+/* Responsive: Mobile cards para tabla */
+@media (max-width: 768px) {
   section {
-    max-width: 900px;
-    margin: 0 auto 2rem auto;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(37,99,235,0.04);
-    padding: 2rem;
+    padding: 1rem;
   }
-
-  .hidden {
-    display: none !important;
-  }
-
-  #leads-table {
+  #leads-table, #leads-table thead, #leads-table tbody, #leads-table th, #leads-table td, #leads-table tr {
+    display: block;
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    font-size: 1rem;
   }
-
-  #leads-table th {
-    background: var(--color-table-header);
-    color: var(--color-primary);
-    font-weight: 600;
-    padding: 0.8rem;
-    border-bottom: 2px solid var(--color-border);
-    text-align: left;
+  #leads-table thead {
+    display: none;
   }
-
-  #leads-table td {
+  #leads-table tr {
+    margin-bottom: 1.2rem;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.07);
+    border-radius: 8px;
     background: var(--color-table-row);
-    padding: 0.7rem;
-    border-bottom: 1px solid var(--color-border);
-    transition: background 0.2s;
+    padding: 1rem 0.5rem;
   }
-
-  #leads-table tr:nth-child(even) td {
-    background: var(--color-table-alt);
+  #leads-table td {
+    position: relative;
+    padding-left: 120px;
+    min-height: 40px;
+    border: none;
+    background: none;
+    color: var(--color-text);
+    box-shadow: none;
   }
-
-  #leads-table tbody tr:hover td {
-    background: var(--color-accent);
-    color: #fff;
+  #leads-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 110px;
+    font-weight: 600;
+    color: var(--color-primary);
+    padding-left: 0.5rem;
+    font-size: 0.98rem;
+    white-space: nowrap;
   }
-
-  /* Responsive: Mobile cards para tabla */
-  @media (max-width: 768px) {
-    section {
-      padding: 1rem;
-    }
-    #leads-table, #leads-table thead, #leads-table tbody, #leads-table th, #leads-table td, #leads-table tr {
-      display: block;
-      width: 100%;
-    }
-    #leads-table thead {
-      display: none;
-    }
-    #leads-table tr {
-      margin-bottom: 1.2rem;
-      box-shadow: 0 2px 8px rgba(37,99,235,0.07);
-      border-radius: 8px;
-      background: var(--color-table-row);
-      padding: 1rem 0.5rem;
-    }
-    #leads-table td {
-      position: relative;
-      padding-left: 120px;
-      min-height: 40px;
-      border: none;
-      background: none;
-      color: var(--color-text);
-      box-shadow: none;
-    }
-    #leads-table td::before {
-      content: attr(data-label);
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 110px;
-      font-weight: 600;
-      color: var(--color-primary);
-      padding-left: 0.5rem;
-      font-size: 0.98rem;
-      white-space: nowrap;
-    }
 }

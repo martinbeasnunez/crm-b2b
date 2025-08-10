@@ -1,54 +1,44 @@
+// Mini-CRM B2B - Lógica principal
+// Autor: martinbeasnunez
+
+// Datos iniciales de leads
 const leads = [
   {
-    empresa: "Ramada Encore",
-    contacto: "Úrsula",
-    telefono: "+51999999999",
-    industria: "Hotelería",
-    distrito: "San Isidro",
-
-    // Mini-CRM B2B - Lógica principal
-    // Autor: martinbeasnunez
-
-    // Datos iniciales de leads
-    const leads = [
-      {
-        empresa: "TechNova S.A.",
-        contacto: "Ana Torres",
-        telefono: "987654321",
-        industria: "Tecnología",
-        distrito: "San Isidro"
-      },
-      {
-        empresa: "AgroPerú SAC",
-        contacto: "Luis Paredes",
-        telefono: "945123456",
-        industria: "Agricultura",
-        distrito: "La Molina"
-      },
-      {
-        empresa: "Finanzas Globales",
-        contacto: "María López",
-        telefono: "912345678",
-        industria: "Finanzas",
-        distrito: "Miraflores"
-      },
-      {
-        empresa: "ConstruyeYa",
-        contacto: "Carlos Ruiz",
-        telefono: "999888777",
-        industria: "Construcción",
-        distrito: "Surco"
-      },
-      {
-        empresa: "Salud Vital",
-        contacto: "Patricia Gómez",
-        telefono: "955667788",
-        industria: "Salud",
-        distrito: "San Borja"
-      }
-    ];
-
-    // Renderiza la tabla de leads dinámicamente
+    empresa: "TechNova S.A.",
+    contacto: "Ana Torres",
+    telefono: "987654321",
+    industria: "Tecnología",
+    distrito: "San Isidro"
+  },
+  {
+    empresa: "AgroPerú SAC",
+    contacto: "Luis Paredes",
+    telefono: "945123456",
+    industria: "Agricultura",
+    distrito: "La Molina"
+  },
+  {
+    empresa: "Finanzas Globales",
+    contacto: "María López",
+    telefono: "912345678",
+    industria: "Finanzas",
+    distrito: "Miraflores"
+  },
+  {
+    empresa: "ConstruyeYa",
+    contacto: "Carlos Ruiz",
+    telefono: "999888777",
+    industria: "Construcción",
+    distrito: "Surco"
+  },
+  {
+    empresa: "Salud Vital",
+    contacto: "Patricia Gómez",
+    telefono: "955667788",
+    industria: "Salud",
+    distrito: "San Borja"
+  }
+];
     function renderLeadsTable(data) {
       const tbody = document.querySelector('#leads-table tbody');
       tbody.innerHTML = '';
