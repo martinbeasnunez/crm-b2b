@@ -1,8 +1,76 @@
 // Mini-CRM B2B - JS sin frameworks
 const STAGES = ['Nuevo','Calificado','En Conversación','Propuesta','Cerrado-Won','Cerrado-Lost'];
 const DISTRICTS = ['Miraflores','San Isidro','Barranco','Surco','La Molina','San Borja'];
-const INDUSTRIAS_ICP = ['Hotelería','Clínica','Salud'];
+const INDUSTRIAS_ICP = ['Hotelerwindow.editLead = function(companyName) {
+  const dialog = document.getElementById('leadDialog');
+  const state = getState();,'Clínica','Salud'];
 const LS_KEY = 'miniCrmB2B';
+
+// Funciones globales para el manejo de UI
+window.editLead = function(companyName) {
+  const dialog = document.getElementById('leadDialog');
+  const state = getState();
+  const lead = companyName ? state.leads.find(l => l.companyName === companyName) : {
+    companyName: '',
+    contactName: '',
+    phone: '',
+    industry: '',
+    district: '',
+    size: '',
+    email: '',
+    notes: '',
+    source: '',
+    status: 'Nuevo'
+  };
+
+  // Llenar el formulario
+  document.getElementById('dlgCompany').value = lead.companyName;
+  document.getElementById('dlgContact').value = lead.contactName;
+  document.getElementById('dlgPhone').value = lead.phone;
+  document.getElementById('dlgIndustry').value = lead.industry;
+  document.getElementById('dlgDistrict').value = lead.district;
+  document.getElementById('dlgSize').value = lead.size;
+  document.getElementById('dlgEmail').value = lead.email;
+  document.getElementById('dlgNotes').value = lead.notes;
+  document.getElementById('dlgSource').value = lead.source;
+  document.getElementById('dlgStatus').value = lead.status;
+
+  // Manejar el envío del formulario
+  dialog.onsubmit = (e) => {
+    e.preventDefault();
+    const newLead = {
+      companyName: document.getElementById('dlgCompany').value,
+      contactName: document.getElementById('dlgContact').value,
+      phone: document.getElementById('dlgPhone').value,
+      industry: document.getElementById('dlgIndustry').value,
+      district: document.getElementById('dlgDistrict').value,
+      size: document.getElementById('dlgSize').value,
+      email: document.getElementById('dlgEmail').value,
+      notes: document.getElementById('dlgNotes').value,
+      source: document.getElementById('dlgSource').value,
+      status: document.getElementById('dlgStatus').value
+    };
+
+    const state = getState();
+    const index = state.leads.findIndex(l => l.companyName === companyName);
+    
+    if (index >= 0) {
+      state.leads[index] = newLead;
+    } else {
+      state.leads.push(newLead);
+    }
+    
+    setState(state);
+    renderLeads();
+    dialog.close();
+    showToast(companyName ? 'Lead actualizado' : 'Lead creado');
+  };
+
+  // Mostrar/ocultar botón eliminar
+  document.getElementById('dlgDelete').style.display = companyName ? 'block' : 'none';
+  
+  dialog.showModal();
+};
 
 // Estado y persistencia
 function getState() {
@@ -236,12 +304,12 @@ function renderLeads() {
             <td>${l.icpScore}</td>
             <td>${l.status} ${l.lastMsg ? '💬' : ''}</td>
             <td>
-              <button class='btn primary' onclick="showMsgDialog('${l.companyName}')">
+              <button class="btn primary" onclick='showMsgDialog(${JSON.stringify(l.companyName)})'>
                 💬 Mensaje
               </button>
             </td>
             <td>
-              <button class="btn ghost" onclick="editLead('${l.companyName}')">
+              <button class="btn ghost" onclick='editLead(${JSON.stringify(l.companyName)})'>
                 Editar
               </button>
             </td>
@@ -670,14 +738,14 @@ function deleteLead() {
 }
 
 // Templates y Mensajes
-function getSuggestedTemplate(lead) {
+window.getSuggestedTemplate = function(lead) {
   if (!lead) return '';
   const state = getState();
   const industryTemplates = state.templates[lead.industry] || state.templates.default;
   return industryTemplates[0] || '';
-}
+};
 
-function showMsgDialog(companyName) {
+window.showMsgDialog = function(companyName) {
   const dialog = document.getElementById('msgDialog');
   const state = getState();
   const lead = state.leads.find(l => l.companyName === companyName);
