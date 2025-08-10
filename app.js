@@ -65,6 +65,39 @@ function renderLeads() {
 
 // Plantillas según industria
 const INDUSTRY_TEMPLATES = {
+  'default': {
+    initial: `Hola {contactName},
+
+Me comunico porque {companyName} podría optimizar sus operaciones con nuestro servicio de lavandería industrial. En GetLavado ofrecemos:
+
+• Precios transparentes y justos
+• Puntualidad garantizada
+• Servicio 24/7 confiable
+• Comunicación ágil vía app
+
+¿Te gustaría una cotización sin compromiso?`,
+    followUp1: `Hola {contactName},
+
+Quería retomar el contacto sobre el servicio de lavandería para {companyName}. Más de 864 empresas ya confían en nosotros por:
+
+• 8 años de experiencia
+• 5 sedes operativas en Lima
+• Calidad garantizada
+• Atención personalizada
+
+¿Podemos agendar una breve llamada?`,
+    followUp2: `Hola {contactName},
+
+Espero que estés teniendo una excelente semana. Me gustaría compartir contigo algunos casos de éxito de empresas como {companyName} que han optimizado sus operaciones con GetLavado.
+
+Nuestros clientes destacan:
+• Ahorro de tiempo y recursos
+• Servicio confiable y puntual
+• Comunicación efectiva
+• Calidad constante
+
+¿Te gustaría que coordinemos una demostración?`
+  },
   'Hotelería': {
     initial: `Hola {contactName},
 
@@ -76,7 +109,7 @@ Me comunico porque {companyName} podría optimizar su servicio de lavandería ho
 • Puntualidad garantizada
 
 ¿Te gustaría una cotización sin compromiso?`,
-    followUp: `Hola {contactName},
+    followUp1: `Hola {contactName},
 
 Quería retomar el contacto sobre el servicio de lavandería VIP para {companyName}. Muchos hoteles ya confían en nosotros por:
 
@@ -85,7 +118,18 @@ Quería retomar el contacto sobre el servicio de lavandería VIP para {companyNa
 • 5 sedes operativas en Lima
 • Precios transparentes y justos
 
-¿Podemos agendar una breve llamada?`
+¿Podemos agendar una breve llamada?`,
+    followUp2: `Hola {contactName},
+
+Espero que estés teniendo una excelente semana. Me gustaría compartir contigo algunos casos de éxito de hoteles como {companyName} que han mejorado su operación con GetLavado.
+
+Nuestros clientes hoteleros destacan:
+• Blancura perfecta garantizada
+• Cero retrasos en entregas
+• Control vía app en tiempo real
+• Protocolos especializados
+
+¿Te gustaría conocer más detalles en una breve reunión?`
   },
   'Clínica': {
     initial: `Hola {contactName},
@@ -98,7 +142,7 @@ Me comunico porque {companyName} necesita los más altos estándares en lavander
 • Puntualidad garantizada
 
 ¿Te gustaría conocer cómo otras clínicas optimizan sus operaciones con nosotros?`,
-    followUp: `Hola {contactName},
+    followUp1: `Hola {contactName},
 
 Quería retomar el contacto sobre nuestro servicio especializado para {companyName}. Entendemos la importancia de:
 
@@ -107,7 +151,18 @@ Quería retomar el contacto sobre nuestro servicio especializado para {companyNa
 • Servicio 24/7 sin interrupciones
 • Comunicación ágil vía app
 
-¿Podemos coordinar una breve reunión?`
+¿Podemos coordinar una breve reunión?`,
+    followUp2: `Hola {contactName},
+
+Espero que estés teniendo una excelente semana. Me gustaría compartir contigo algunos casos de éxito del sector salud que, como {companyName}, han optimizado sus operaciones con GetLavado.
+
+Nuestros clientes del sector salud destacan:
+• Cumplimiento de estándares sanitarios
+• Sistema de trazabilidad completo
+• Certificaciones actualizadas
+• Protocolos específicos por área
+
+¿Te gustaría una demostración de nuestro sistema?`
   },
   'Spa': {
     initial: `Hola {contactName},
@@ -120,7 +175,7 @@ Me comunico porque {companyName} podría elevar la experiencia de sus clientes. 
 • Cuidado profesional de textiles de lujo
 
 ¿Te gustaría saber cómo otros spas han mejorado su servicio con nosotros?`,
-    followUp: `Hola {contactName},
+    followUp1: `Hola {contactName},
 
 Quería retomar el contacto sobre el servicio premium para {companyName}. Nos encargamos de:
 
@@ -129,20 +184,42 @@ Quería retomar el contacto sobre el servicio premium para {companyName}. Nos en
 • Comunicación ágil vía app
 • Puntualidad garantizada
 
-¿Podemos agendar una breve llamada?`
+¿Podemos agendar una breve llamada?`,
+    followUp2: `Hola {contactName},
+
+Espero que estés teniendo una excelente semana. Me gustaría compartir contigo cómo otros centros de bienestar como {companyName} han elevado su experiencia con GetLavado.
+
+Nuestros clientes del sector wellness destacan:
+• Textiles que mantienen su lujo
+• Fragancias premium personalizadas
+• Cuidado especializado por tipo de tela
+• Entregas coordinadas con sus horarios
+
+¿Te gustaría conocer más detalles en una breve reunión?`
   }
 };
 
 // Función para obtener plantilla según industria y etapa
 function getSuggestedTemplate(lead) {
-  const template = INDUSTRY_TEMPLATES[lead.industry];
-  if (!template) return '';
+  // Si no tiene industria, usar plantilla default
+  const template = INDUSTRY_TEMPLATES[lead.industry] || INDUSTRY_TEMPLATES['default'];
   
-  // Si ya hay mensajes previos, usar followUp
-  const messageType = lead.lastMsg ? 'followUp' : 'initial';
+  // Determinar qué tipo de mensaje enviar según el historial
+  let messageType = 'initial';
+  
+  if (lead.lastMsg) {
+    // Contar cuántos mensajes se han enviado
+    const messageCount = (lead.messageHistory || []).length;
+    
+    if (messageCount >= 2) {
+      messageType = 'followUp2';
+    } else {
+      messageType = 'followUp1';
+    }
+  }
   
   return template[messageType]
-    .replace(/{contactName}/g, lead.contactName)
+    .replace(/{contactName}/g, lead.contactName || 'Estimado/a')
     .replace(/{companyName}/g, lead.companyName);
 }
 
@@ -171,6 +248,12 @@ window.showMsgDialog = function(companyName) {
     showToast('Mensaje copiado');
   };
   dlg.querySelector('#sendMsgBtn').onclick = ()=>{
+    // Guardar historial de mensajes
+    if (!lead.messageHistory) lead.messageHistory = [];
+    lead.messageHistory.push({
+      msg: msg,
+      date: new Date().toISOString()
+    });
     lead.lastMsg = msg;
     lead.lastMsgDate = new Date().toISOString();
     setState(state);
