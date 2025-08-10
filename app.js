@@ -1,15 +1,14 @@
 // Mini-CRM B2B - JS sin frameworks
-// Estado global y helpers
 const STAGES = ['Nuevo','Calificado','En Conversación','Propuesta','Cerrado-Won','Cerrado-Lost'];
 const DISTRICTS = ['Miraflores','San Isidro','Barranco','Surco','La Molina','San Borja'];
 const INDUSTRIAS_ICP = ['Hotelería','Clínica','Salud'];
 const LS_KEY = 'miniCrmB2B';
 
+// Estado y persistencia
 function getState() {
   let state = localStorage.getItem(LS_KEY);
   if (state) return JSON.parse(state);
   
-  // Estado inicial por defecto
   const initialState = {
     leads: [
       {companyName:'Ramada Encore',contactName:'Úrsula',phone:'+51999999999',industry:'Hotelería',size:60,district:'San Isidro',email:'',notes:'',source:'Web',status:'Nuevo'},
@@ -17,8 +16,8 @@ function getState() {
       {companyName:'Casa Convivencia',contactName:'María',phone:'+51977777777',industry:'Residencial',size:30,district:'Miraflores',email:'',notes:'',source:'Web',status:'En Conversación'}
     ],
     templates: [
-      'Hola {{contactName}}, te escribo de {{companyName}} para conversar sobre una posible colaboración.',
-      'Estimado/a {{contactName}}, ¿podemos agendar una llamada para conocer más sobre {{companyName}}?'
+      'Hola {{contactName}}, te escribo de GetLavado. Me gustaría conversar sobre nuestro servicio de lavandería para {{companyName}}.',
+      'Estimado/a {{contactName}}, ¿podemos coordinar una visita a {{companyName}} para presentar nuestro servicio?'
     ],
     reminders: [
       {
@@ -34,7 +33,6 @@ function getState() {
     ]
   };
   
-  // Guardar el estado inicial en localStorage
   localStorage.setItem(LS_KEY, JSON.stringify(initialState));
   return initialState;
 }
@@ -43,18 +41,52 @@ function setState(state) {
   localStorage.setItem(LS_KEY, JSON.stringify(state));
 }
 
+// Helpers y utilidades
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleString('es-ES', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function getReminderIcon(type) {
+  const icons = {
+    call: '📞',
+    meeting: '👥',
+    email: '✉️',
+    other: '📌'
+  };
+  return icons[type] || icons.other;
+}
+
 function scoreICP(lead) {
   let score = 0;
-  if (INDUSTRIAS_ICP.some(i => (lead.industry||'').toLowerCase().includes(i.toLowerCase()))) score += 10;
+  if (INDUSTRIAS_ICP.includes(lead.industry)) score += 10;
   if (DISTRICTS.includes(lead.district)) score += 10;
   if (lead.size && lead.size >= 50) score += 5;
   if (/^\+51\d{9}$/.test(lead.phone)) score += 5;
   return score;
 }
 
+// Navegación y UI
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
 function showTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab===tab));
-  document.querySelectorAll('main > section').forEach(sec => sec.classList.toggle('hidden', sec.id!==`tab-${tab}`));
+  document.querySelectorAll('.tab-btn').forEach(btn => 
+    btn.classList.toggle('active', btn.dataset.tab === tab)
+  );
+  document.querySelectorAll('main > section').forEach(sec => 
+    sec.classList.toggle('hidden', sec.id !== `tab-${tab}`)
+  );
   
   // Renderizar contenido según la pestaña
   switch(tab) {
@@ -73,24 +105,182 @@ function showTab(tab) {
   }
 }
 
-// Leads
+// Gestión de Leads
 function renderLeads() {
   const state = getState();
   let leads = state.leads.map(l => ({...l, icpScore: scoreICP(l)}));
   const q = document.getElementById('leadSearch').value.toLowerCase();
-  if (q) leads = leads.filter(l => (l.companyName+l.contactName).toLowerCase().includes(q));
-  leads = leads.sort((a,b)=>b.icpScore-a.icpScore);
-  
-  let html = `<table><thead><tr><th>Empresa</th><th>Contacto</th><th>Teléfono</th><th>Industria</th><th>Distrito</th><th>Tamaño</th><th>ICP</th><th>Estado</th><th>Msg</th><th></th></tr></thead><tbody>`;
-  for(const l of leads) {
-    let statusIcon = l.lastMsg ? '💬' : '';
-    html += `<tr${l.lastMsg?" style='background:var(--muted)'":""}><td>${l.companyName}</td><td>${l.contactName}</td><td>${l.phone}</td><td>${l.industry}</td><td>${l.district}</td><td>${l.size||''}</td><td>${l.icpScore}</td><td>${l.status} ${statusIcon}</td>`;
-    let tpl = getSuggestedTemplate(l);
-    html += `<td><button class='btn primary' onclick="showMsgDialog('${l.companyName}')">💬 Mensaje</button></td>`;
-    html += `<td><button class="btn ghost" onclick="editLead('${l.companyName}')">Editar</button></td></tr>`;
+  if (q) {
+    leads = leads.filter(l => 
+      (l.companyName + l.contactName).toLowerCase().includes(q)
+    );
   }
-  html += '</tbody></table>';
+  leads.sort((a,b) => b.icpScore - a.icpScore);
+  
+  const html = `
+    <table>
+      <thead>
+        <tr>
+          <th>Empresa</th>
+          <th>Contacto</th>
+          <th>Teléfono</th>
+          <th>Industria</th>
+          <th>Distrito</th>
+          <th>Tamaño</th>
+          <th>ICP</th>
+          <th>Estado</th>
+          <th>Msg</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${leads.map(l => `
+          <tr${l.lastMsg ? " style='background:var(--muted)'" : ""}>
+            <td>${l.companyName}</td>
+            <td>${l.contactName}</td>
+            <td>${l.phone}</td>
+            <td>${l.industry}</td>
+            <td>${l.district}</td>
+            <td>${l.size || ''}</td>
+            <td>${l.icpScore}</td>
+            <td>${l.status} ${l.lastMsg ? '💬' : ''}</td>
+            <td>
+              <button class='btn primary' onclick="showMsgDialog('${l.companyName}')">
+                💬 Mensaje
+              </button>
+            </td>
+            <td>
+              <button class="btn ghost" onclick="editLead('${l.companyName}')">
+                Editar
+              </button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+  
   document.getElementById('leadsTableWrap').innerHTML = html;
+}
+
+function editLead(companyName = '') {
+  const dialog = document.getElementById('leadDialog');
+  const state = getState();
+  let lead = state.leads.find(l => l.companyName === companyName) || {
+    companyName: '',
+    contactName: '',
+    phone: '',
+    industry: '',
+    district: '',
+    size: '',
+    email: '',
+    notes: '',
+    source: '',
+    status: 'Nuevo'
+  };
+
+  // Llenar formulario
+  document.getElementById('dlgCompany').value = lead.companyName;
+  document.getElementById('dlgContact').value = lead.contactName;
+  document.getElementById('dlgPhone').value = lead.phone;
+  document.getElementById('dlgIndustry').value = lead.industry;
+  document.getElementById('dlgDistrict').value = lead.district;
+  document.getElementById('dlgSize').value = lead.size;
+  document.getElementById('dlgEmail').value = lead.email;
+  document.getElementById('dlgNotes').value = lead.notes;
+  document.getElementById('dlgSource').value = lead.source;
+  document.getElementById('dlgStatus').value = lead.status;
+
+  // Mostrar/ocultar botón eliminar
+  document.getElementById('dlgDelete').style.display = companyName ? 'block' : 'none';
+
+  // Manejar guardar
+  dialog.onsubmit = (e) => {
+    e.preventDefault();
+    const newLead = {
+      companyName: document.getElementById('dlgCompany').value,
+      contactName: document.getElementById('dlgContact').value,
+      phone: document.getElementById('dlgPhone').value,
+      industry: document.getElementById('dlgIndustry').value,
+      district: document.getElementById('dlgDistrict').value,
+      size: document.getElementById('dlgSize').value,
+      email: document.getElementById('dlgEmail').value,
+      notes: document.getElementById('dlgNotes').value,
+      source: document.getElementById('dlgSource').value,
+      status: document.getElementById('dlgStatus').value
+    };
+
+    const state = getState();
+    const index = state.leads.findIndex(l => l.companyName === companyName);
+    
+    if (index >= 0) {
+      state.leads[index] = newLead;
+    } else {
+      state.leads.push(newLead);
+    }
+    
+    setState(state);
+    renderLeads();
+    dialog.close();
+    showToast(companyName ? 'Lead actualizado' : 'Lead creado');
+  };
+
+  dialog.showModal();
+}
+
+function deleteLead() {
+  const companyName = document.getElementById('dlgCompany').value;
+  if (!companyName) return;
+  
+  if (confirm(`¿Estás seguro de eliminar el lead ${companyName}?`)) {
+    const state = getState();
+    state.leads = state.leads.filter(l => l.companyName !== companyName);
+    setState(state);
+    renderLeads();
+    document.getElementById('leadDialog').close();
+    showToast('Lead eliminado');
+  }
+}
+
+function showMsgDialog(companyName) {
+  const dialog = document.getElementById('msgDialog');
+  const state = getState();
+  const lead = state.leads.find(l => l.companyName === companyName);
+  
+  if (!lead) return;
+
+  // Llenar plantillas
+  const select = document.getElementById('dlgMsgTemplate');
+  select.innerHTML = state.templates.map((tpl, i) => 
+    `<option value="${i}">${tpl.substring(0, 50)}...</option>`
+  ).join('');
+  
+  // Preview del mensaje
+  window.updateMessagePreview = () => {
+    const tpl = state.templates[select.value];
+    let msg = tpl;
+    Object.keys(lead).forEach(key => {
+      msg = msg.replace(new RegExp(`{{${key}}}`, 'g'), lead[key]);
+    });
+    document.getElementById('dlgMsgText').value = msg;
+  };
+  
+  updateMessagePreview();
+  
+  // Manejar envío
+  dialog.onsubmit = (e) => {
+    e.preventDefault();
+    lead.lastMsg = document.getElementById('dlgMsgText').value;
+    setState(state);
+    renderLeads();
+    dialog.close();
+    showToast('Mensaje enviado');
+  };
+  
+  // Botón cancelar
+  document.getElementById('dlgMsgCancel').onclick = () => dialog.close();
+  
+  dialog.showModal();
 }
 
 // Recordatorios
@@ -233,9 +423,9 @@ function formatDate(dateStr) {
   });
 }
 
-// Event Listeners
+// Inicialización
 function initializeEventListeners() {
-  // Tab buttons
+  // Tab navigation
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.onclick = () => showTab(btn.dataset.tab);
   });
@@ -252,19 +442,13 @@ function initializeEventListeners() {
   const remDialog = document.getElementById('reminderDialog');
   document.getElementById('dlgRemCancel').onclick = () => remDialog.close();
   document.getElementById('dlgRemDelete').onclick = deleteReminder;
-  
-  // Import/Export
-  document.getElementById('importBtn').onclick = importCSV;
-  document.getElementById('exportBtn').onclick = exportCSV;
-  
-  // Search input debounce
-  const searchInput = document.getElementById('leadSearch');
-  let debounceTimeout;
-  searchInput.addEventListener('input', () => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(renderLeads, 300);
-  });
 }
+
+// Cargar estado inicial
+document.addEventListener('DOMContentLoaded', () => {
+  initializeEventListeners();
+  showTab('leads');
+});
 
 // Toast notifications
 function showToast(msg) {
