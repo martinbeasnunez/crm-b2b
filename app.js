@@ -105,6 +105,38 @@ function showTab(tab) {
   }
 }
 
+// Pipeline (Kanban)
+function renderKanban() {
+  const state = getState();
+  const leads = state.leads;
+  
+  const html = `
+    <div class="kanban">
+      ${STAGES.map(stage => `
+        <div class="kanban-column">
+          <div class="kanban-header">${stage}</div>
+          <div class="kanban-body" data-stage="${stage}">
+            ${leads.filter(l => l.status === stage).map(lead => `
+              <div class="kanban-card" onclick="editLead('${lead.companyName}')">
+                <div class="card-title">${lead.companyName}</div>
+                <div class="card-contact">${lead.contactName}</div>
+                ${lead.phone ? `<div class="card-phone">📱 ${lead.phone}</div>` : ''}
+                <div class="card-meta">
+                  ${lead.industry ? `<span class="tag">${lead.industry}</span>` : ''}
+                  ${lead.district ? `<span class="tag">${lead.district}</span>` : ''}
+                </div>
+                <div class="card-score">ICP: ${scoreICP(lead)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  
+  document.getElementById('kanbanWrap').innerHTML = html;
+}
+
 // Gestión de Leads
 function renderLeads() {
   const state = getState();
@@ -423,6 +455,32 @@ function formatDate(dateStr) {
   });
 }
 
+// Plantillas
+function renderTemplates() {
+  const state = getState();
+  const html = `
+    <div class="templates-list">
+      ${state.templates.map((tpl, i) => `
+        <div class="template-item">
+          <div class="template-text">${tpl}</div>
+          <button class="btn danger" onclick="deleteTemplate(${i})">Eliminar</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  document.getElementById('tplList').innerHTML = html;
+}
+
+function deleteTemplate(index) {
+  if (confirm('¿Estás seguro de eliminar esta plantilla?')) {
+    const state = getState();
+    state.templates.splice(index, 1);
+    setState(state);
+    renderTemplates();
+    showToast('Plantilla eliminada');
+  }
+}
+
 // Inicialización
 function initializeEventListeners() {
   // Tab navigation
@@ -442,6 +500,20 @@ function initializeEventListeners() {
   const remDialog = document.getElementById('reminderDialog');
   document.getElementById('dlgRemCancel').onclick = () => remDialog.close();
   document.getElementById('dlgRemDelete').onclick = deleteReminder;
+  
+  // Templates
+  const tplInput = document.getElementById('tplInput');
+  document.getElementById('addTplBtn').onclick = () => {
+    const tpl = tplInput.value.trim();
+    if (!tpl) return;
+    
+    const state = getState();
+    state.templates.push(tpl);
+    setState(state);
+    tplInput.value = '';
+    renderTemplates();
+    showToast('Plantilla agregada');
+  };
 }
 
 // Cargar estado inicial
