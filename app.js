@@ -444,12 +444,118 @@ document.getElementById('addTplBtn').onclick = function() {
 // Recordatorios
 function renderReminders() {
   const state = getState();
-  let html = '<ul>';
-  state.reminders.forEach((r,i)=>{
-    html += `<li><span>${r.text}</span> <button class="btn ok" onclick="markRem(${i})">Hecho</button> <button class="btn danger" onclick="delRem(${i})">Eliminar</button></li>`;
+  const now = new Date();
+  
+  // Agrupar recordatorios por fecha
+  const today = now.toDateString();
+  const thisWeek = new Date(now.setDate(now.getDate() + 7)).toDateString();
+  
+  const groups = {
+    today: [],
+    week: [],
+    future: [],
+    completed: []
+  };
+  
+  state.reminders.forEach(rem => {
+    const remDate = new Date(rem.date);
+    if (rem.status === 'completed') {
+      groups.completed.push(rem);
+    } else if (remDate.toDateString() === today) {
+      groups.today.push(rem);
+    } else if (remDate.toDateString() <= thisWeek) {
+      groups.week.push(rem);
+    } else {
+      groups.future.push(rem);
+    }
   });
-  html += '</ul>';
-  document.getElementById('remList').innerHTML = html;
+
+  // Render HTML
+  let html = `
+    <div class="reminders-header">
+      <h2>Recordatorios</h2>
+      <div class="reminder-actions">
+        <button class="btn primary" onclick="showNewReminderDialog()">
+          <i class="fas fa-plus"></i> Nuevo recordatorio
+        </button>
+        <select id="reminderFilter" onchange="filterReminders(this.value)">
+          <option value="all">Todos</option>
+          <option value="call">Llamadas</option>
+          <option value="meeting">Reuniones</option>
+          <option value="email">Emails</option>
+          <option value="other">Otros</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="reminders-grid">
+      <div class="reminders-list">
+        ${renderReminderGroup('Hoy', groups.today)}
+        ${renderReminderGroup('Esta semana', groups.week)}
+        ${renderReminderGroup('Próximos', groups.future)}
+        ${renderReminderGroup('Completados', groups.completed)}
+      </div>
+      
+      <div class="reminders-calendar">
+        <div id="reminderCalendar"></div>
+      </div>
+    </div>`;
+
+  document.getElementById('tab-recordatorios').innerHTML = html;
+  initializeCalendar();
+}
+
+function renderReminderGroup(title, reminders) {
+  if (!reminders.length) return '';
+  
+  return `
+    <div class="reminder-group">
+      <h3>${title} <span class="count">${reminders.length}</span></h3>
+      <div class="reminder-items">
+        ${reminders.map(rem => `
+          <div class="reminder-card ${rem.status} ${rem.priority}" onclick="showReminderDetails(${rem.id})">
+            <div class="reminder-icon">
+              ${getReminderIcon(rem.type)}
+            </div>
+            <div class="reminder-info">
+              <div class="reminder-title">${rem.title}</div>
+              <div class="reminder-meta">
+                <span class="time">${formatDate(rem.date)}</span>
+                ${rem.lead ? `<span class="lead">📋 ${rem.lead}</span>` : ''}
+              </div>
+            </div>
+            <div class="reminder-actions">
+              ${rem.status !== 'completed' ? 
+                `<button class="btn ok" onclick="completeReminder(${rem.id}, event)">✓</button>` : ''}
+              <button class="btn ghost" onclick="editReminder(${rem.id}, event)">✎</button>
+              <button class="btn danger" onclick="deleteReminder(${rem.id}, event)">×</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function getReminderIcon(type) {
+  const icons = {
+    call: '📞',
+    meeting: '👥',
+    email: '✉️',
+    other: '📌'
+  };
+  return icons[type] || icons.other;
+}
+
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleString('es-ES', { 
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 }
 window.markRem = function(idx) {
   const state = getState();
