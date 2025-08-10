@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,60 +8,134 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-  <!-- Encabezado principal -->
-  <header>
-    <h1>Mini-CRM B2B</h1>
-  </header>
-
-  <!-- Barra de navegación principal -->
-  <nav class="navbar">
-    <button class="nav-btn active" data-section="leads">Leads</button>
-    <button class="nav-btn" data-section="pipeline">Pipeline</button>
-    <button class="nav-btn" data-section="plantillas">Plantillas</button>
-    <button class="nav-btn" data-section="recordatorios">Recordatorios</button>
-    <button class="nav-btn" data-section="importar">Importar</button>
-  </nav>
-
-  <!-- Sección Leads (visible por defecto) -->
-  <section id="leads-section">
-    <div class="filter-container">
-      <input type="text" id="lead-filter" placeholder="Buscar empresa o contacto..." />
+  <header class="sticky">
+    <div class="wrap">
+      <h1>Mini-CRM B2B</h1>
+      <nav class="tabs">
+        <button class="tab-btn" data-tab="leads">Leads</button>
+        <button class="tab-btn" data-tab="pipeline">Pipeline</button>
+        <button class="tab-btn" data-tab="plantillas">Plantillas</button>
+        <button class="tab-btn" data-tab="recordatorios">Recordatorios</button>
+        <button class="tab-btn" data-tab="importar">Importar</button>
+      </nav>
     </div>
-    <table id="leads-table">
-      <thead>
-        <tr>
-          <th>Empresa</th>
-          <th>Contacto</th>
-          <th>Teléfono</th>
-          <th>Industria</th>
-          <th>Distrito</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Los leads se llenarán aquí con JS -->
-      </tbody>
-    </table>
-  </section>
-
-  <!-- Secciones ocultas por defecto -->
-  <section id="pipeline-section" class="hidden">
-    <h2>Pipeline</h2>
-    <p>Gestión de oportunidades y etapas del proceso comercial.</p>
-  </section>
-  <section id="plantillas-section" class="hidden">
-    <h2>Plantillas</h2>
-    <p>Plantillas de correos y mensajes para tus clientes.</p>
-  </section>
-  <section id="recordatorios-section" class="hidden">
-    <h2>Recordatorios</h2>
-    <p>Recordatorios y tareas pendientes.</p>
-  </section>
-  <section id="importar-section" class="hidden">
-    <h2>Importar</h2>
-    <p>Importa tus leads desde un archivo CSV.</p>
-  </section>
-
-  <script type="module" src="app.js"></script>
+  </header>
+  <main>
+    <section id="tab-leads" class="panel">
+      <div class="grid g-2">
+        <div>
+          <input type="search" id="leadSearch" placeholder="Buscar lead..." autocomplete="off" />
+        </div>
+        <div style="text-align:right">
+          <button class="btn primary" id="addLeadBtn">Nuevo Lead</button>
+        </div>
+      </div>
+      <div id="leadsTableWrap"></div>
+    </section>
+    <section id="tab-pipeline" class="panel hidden">
+      <div id="kanbanWrap"></div>
+    </section>
+    <section id="tab-plantillas" class="panel hidden">
+      <div class="grid g-2">
+        <div><input type="text" id="tplInput" placeholder="Nueva plantilla..." /></div>
+        <div style="text-align:right"><button class="btn primary" id="addTplBtn">Agregar</button></div>
+      </div>
+      <div id="tplList"></div>
+    </section>
+    <section id="tab-recordatorios" class="panel hidden">
+      <div class="grid g-2">
+        <div><input type="text" id="remInput" placeholder="Nuevo recordatorio..." /></div>
+        <div style="text-align:right"><button class="btn primary" id="addRemBtn">Agregar</button></div>
+      </div>
+      <div id="remList"></div>
+    </section>
+    <section id="tab-importar" class="panel hidden">
+      <div class="grid g-2">
+        <div><input type="file" id="csvInput" accept=".csv" /></div>
+        <div style="text-align:right">
+          <button class="btn ghost" id="importBtn">Importar CSV</button>
+          <button class="btn ghost" id="exportBtn">Exportar CSV</button>
+        </div>
+      </div>
+      <div id="importResult"></div>
+    </section>
+  </main>
+  <!-- Dialog Lead -->
+  <dialog id="leadDialog">
+    <form method="dialog" class="dlg">
+      <div class="dlg-h">Lead</div>
+      <div class="dlg-c grid g-2">
+        <div>
+          <label>Empresa</label>
+          <input type="text" id="dlgCompany" required />
+        </div>
+        <div>
+          <label>Contacto</label>
+          <input type="text" id="dlgContact" required />
+        </div>
+        <div>
+          <label>Teléfono</label>
+          <input type="text" id="dlgPhone" />
+        </div>
+        <div>
+          <label>Industria</label>
+          <input type="text" id="dlgIndustry" />
+        </div>
+        <div>
+          <label>Distrito</label>
+          <input type="text" id="dlgDistrict" />
+        </div>
+        <div>
+          <label>Tamaño</label>
+          <input type="number" id="dlgSize" min="1" />
+        </div>
+        <div>
+          <label>Email</label>
+          <input type="email" id="dlgEmail" />
+        </div>
+        <div>
+          <label>Notas</label>
+          <input type="text" id="dlgNotes" />
+        </div>
+        <div>
+          <label>Fuente</label>
+          <input type="text" id="dlgSource" />
+        </div>
+        <div>
+          <label>Estado</label>
+          <select id="dlgStatus">
+            <option value="Nuevo">Nuevo</option>
+            <option value="Calificado">Calificado</option>
+            <option value="En Conversación">En Conversación</option>
+            <option value="Propuesta">Propuesta</option>
+            <option value="Cerrado-Won">Cerrado-Won</option>
+            <option value="Cerrado-Lost">Cerrado-Lost</option>
+          </select>
+        </div>
+      </div>
+      <div class="dlg-f">
+        <button type="submit" class="btn primary">Guardar</button>
+        <button type="button" class="btn ghost" id="dlgCancel">Cancelar</button>
+        <button type="button" class="btn danger" id="dlgDelete">Eliminar</button>
+      </div>
+    </form>
+  </dialog>
+  <!-- Dialog Recordatorio -->
+  <dialog id="remDialog">
+    <form method="dialog" class="dlg">
+      <div class="dlg-h">Recordatorio</div>
+      <div class="dlg-c">
+        <label>Texto</label>
+        <input type="text" id="dlgRemText" required />
+      </div>
+      <div class="dlg-f">
+        <button type="submit" class="btn primary">Guardar</button>
+        <button type="button" class="btn ghost" id="dlgRemCancel">Cancelar</button>
+        <button type="button" class="btn danger" id="dlgRemDelete">Eliminar</button>
+      </div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast"></div>
+  <script src="app.js" defer></script>
 </body>
 </html>
