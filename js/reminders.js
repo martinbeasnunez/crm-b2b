@@ -27,7 +27,7 @@ export function renderReminders() {
             <div class="reminder-icon">${getReminderIcon(rem.type)}</div>
             <div class="reminder-info">
               <div class="reminder-title">${rem.title}</div>
-              <div class="reminder-lead">${rem.lead} • ${formatTime(rem.date)}</div>
+              <div class="reminder-lead">${rem.lead} • ${formatTime(rem.date)} ${isToday(rem.date) && isPast(rem.date) && rem.status !== 'completed' ? '<span class="badge overdue-badge">Atrasado</span>' : ''}</div>
               <div class="reminder-notes">${rem.notes}</div>
             </div>
             <div class="reminder-actions">
@@ -49,7 +49,8 @@ function getReminderIcon(type) {
     call: '📞',
     meeting: '👥',
     email: '✉️',
-    other: '📌'
+  whatsapp: '💬',
+  other: '📌'
   };
   return icons[type] || icons.other;
 }
@@ -63,6 +64,14 @@ function isPast(dateStr) {
   const now = new Date();
   const d = new Date(dateStr);
   return d < now;
+}
+
+function isToday(dateStr) {
+  const today = new Date();
+  const d = new Date(dateStr);
+  today.setHours(0,0,0,0);
+  d.setHours(0,0,0,0);
+  return d.getTime() === today.getTime();
 }
 
 function relativeDateLabel(dateStr) {

@@ -1,9 +1,13 @@
 import { getState, setState, showToast, scoreICP } from './common.js';
-import { getState as _getState } from './common.js';
+
+function hasPendingReminders(state, lead) {
+  const now = new Date();
+  return (state.reminders || []).some(r => r.lead === lead.companyName && r.status !== 'completed' && new Date(r.date) >= new Date(now.setHours(0,0,0,0)));
+}
 
 function nextStepLabel(lead) {
   try {
-    const state = _getState();
+    const state = getState();
     // Clave de industria normalizada se resuelve en messages.js, aquí usamos industria tal cual para contar
     const total = 3; // definimos 3 toques por la normalización
     const sent = Array.isArray(lead.msgHistory) ? lead.msgHistory.length : 0;
@@ -43,7 +47,9 @@ export function renderLeads() {
         </tr>
       </thead>
       <tbody>
-        ${leads.map(l => `
+        ${leads.map(l => {
+          const bell = hasPendingReminders(state, l) ? ' 🔔' : '';
+          return `
           <tr${l.lastMsg ? " style='background:var(--muted)'" : ""}>
             <td>${l.companyName}</td>
             <td>${l.contactName}</td>
@@ -52,7 +58,7 @@ export function renderLeads() {
             <td>${l.district}</td>
             <td>${l.size || ''}</td>
             <td>${l.icpScore}</td>
-            <td>${l.status} ${l.lastMsg ? '💬' : ''}</td>
+            <td>${l.status} ${l.lastMsg ? '💬' : ''}${bell}</td>
             <td>${nextStepLabel(l)}</td>
             <td>
               <button class='btn primary' onclick='window.showMsgDialog(${JSON.stringify(l.companyName)})'>
@@ -65,7 +71,7 @@ export function renderLeads() {
               </button>
             </td>
           </tr>
-        `).join('')}
+        `}).join('')}
       </tbody>
     </table>
   `;

@@ -473,6 +473,10 @@ tr:hover td {
 .reminder-card.low {
   border-left: 3px solid var(--ok);
 }
+.reminder-card.overdue {
+  border-color: var(--danger);
+  background: #ffecec;
+}
 
 .reminder-icon {
   font-size: 1.5rem;
@@ -500,6 +504,15 @@ tr:hover td {
   color: var(--sub);
   display: flex;
   gap: 1rem;
+}
+.badge.overdue-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  background: var(--danger);
+  color: var(--white);
 }
 
 .reminder-actions {
