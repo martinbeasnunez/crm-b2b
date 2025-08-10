@@ -17,15 +17,27 @@ export function getState() {
     ],
     templates: {
       'Hotelería': [
-        '¡Hola {{contactName}}! 👋 GetLavado es el servicio VIP que {{companyName}} necesita. Blancura inmaculada garantizada en toallas y sábanas + uniformes impecables. 864 hoteles ya confían en nosotros. ¿Te gustaría una prueba GRATIS esta semana? 🏨✨',
-        '{{contactName}}, tu hotel merece un servicio 5⭐. En GetLavado cuidamos cada detalle: \n✅ Blancura perfecta\n✅ Entrega puntual\n✅ Protocolos VIP\n\nTus huéspedes notarán la diferencia. ¿Coordinamos una visita a {{companyName}}? 🏨'
+        '¡Hola {{contactName}}! 👋 En {{companyName}} podemos garantizar blancura perfecta en toallas y sábanas, con entregas puntuales y control VIP. ¿Agendamos una prueba esta semana? 🏨✨',
+        '{{contactName}}, impulsa la experiencia de tus huéspedes en {{companyName}}:\n✅ Blancura total\n✅ Entregas a tiempo\n✅ Protocolos VIP\n\n¿Coordinamos una visita? 🏨'
       ],
       'Clínica': [
-        '¡Hola {{contactName}}! GetLavado garantiza la máxima higiene que {{companyName}} requiere. Protocolos certificados de esterilización + control de calidad riguroso. 8 años cuidando clínicas líderes. ¿Te gustaría conocer nuestro servicio? 🏥✨',
-        '{{contactName}}, la higiene es vital en {{companyName}}. Ofrecemos:\n✅ Esterilización certificada\n✅ Protocolos sanitarios\n✅ Servicio 24/7\n\nMuchas clínicas ya optimizaron sus costos con nosotros. ¿Conversamos? 🏥'
+        '¡Hola {{contactName}}! En {{companyName}} la higiene es crítica. Ofrecemos esterilización certificada y control de calidad riguroso. ¿Te muestro cómo operamos? 🏥✨',
+        '{{contactName}}, protocolos sanitarios y servicio 24/7 para {{companyName}}. Optimiza costos sin perder calidad. ¿Conversamos? 🏥'
+      ],
+      'Residencial': [
+        'Hola {{contactName}}, en {{companyName}} podemos mejorar la rotación y cuidado de ropa de cama y toallas. Servicio confiable y precios claros. ¿Te interesa una demo? 🏠',
+        '{{contactName}}, cuidamos la ropa de cama de {{companyName}} con estándares hoteleros. Calidad y puntualidad. ¿Agendamos? �'
+      ],
+      'Spa': [
+        'Hola {{contactName}} 👋, en {{companyName}} podemos mantener toallas y batas impecables con suavidad premium. ¿Coordinamos una prueba? 💆‍♀️',
+        'Para {{companyName}}: lavado delicado, perfumes neutros y entregas puntuales. ¿Te va una demo? 💆'
+      ],
+      'Airbnb': [
+        'Hola {{contactName}}, escalamos la operación de lavandería para {{companyName}} con retiros y entregas sincronizados por reserva. ¿Te cuento? 🏡',
+        'Check-in sin estrés para {{companyName}}: ropa impecable, inventario controlado y tarifa plana. ¿Agendamos? 🏡'
       ],
       'default': [
-        '¡Hola {{contactName}}! 👋 GetLavado es líder en lavandería industrial: 864 empresas confían en nosotros. ¿Te gustaría una prueba GRATIS para {{companyName}} esta semana? Precios transparentes y servicio premium garantizado ⭐',
+        'Hola {{contactName}}, ¿cómo podemos ayudar a {{companyName}} hoy?\n✅ Servicio personalizado\n✅ Atención inmediata\n\n¿Coordinamos una llamada? 🤝',
         '{{contactName}}, optimiza las operaciones de {{companyName}}:\n✅ Servicio confiable\n✅ Precios transparentes\n✅ Calidad garantizada\n\n¿Coordinamos una visita? 🚀'
       ]
     },

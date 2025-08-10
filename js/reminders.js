@@ -12,20 +12,22 @@ export function renderReminders() {
     groups[date].push(rem);
   });
   
+  const entries = Object.entries(groups).sort((a,b) => a[0].localeCompare(b[0]));
   let html = '';
-  Object.entries(groups).sort().forEach(([date, items]) => {
+  entries.forEach(([date, items]) => {
+    const label = relativeDateLabel(date);
     html += `
       <div class="reminder-group">
         <h3>
-          ${formatDate(date)}
+          ${label}
           <span class="count">${items.length}</span>
         </h3>
         ${items.map(rem => `
-          <div class="reminder-card">
+          <div class="reminder-card ${isPast(rem.date) && rem.status !== 'completed' ? 'overdue' : ''}">
             <div class="reminder-icon">${getReminderIcon(rem.type)}</div>
             <div class="reminder-info">
               <div class="reminder-title">${rem.title}</div>
-              <div class="reminder-lead">${rem.lead}</div>
+              <div class="reminder-lead">${rem.lead} • ${formatTime(rem.date)}</div>
               <div class="reminder-notes">${rem.notes}</div>
             </div>
             <div class="reminder-actions">
@@ -52,6 +54,31 @@ function getReminderIcon(type) {
   return icons[type] || icons.other;
 }
 
+function formatTime(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+}
+
+function isPast(dateStr) {
+  const now = new Date();
+  const d = new Date(dateStr);
+  return d < now;
+}
+
+function relativeDateLabel(dateStr) {
+  const today = new Date();
+  const target = new Date(dateStr);
+  // normalizar
+  today.setHours(0,0,0,0);
+  target.setHours(0,0,0,0);
+  const diffDays = Math.round((target - today) / (1000*60*60*24));
+  if (diffDays === 0) return 'Hoy';
+  if (diffDays === 1) return 'Mañana';
+  if (diffDays === -1) return 'Ayer';
+  // para el resto, fecha legible
+  return formatDate(dateStr);
+}
+
 export function editReminder(id) {
   const dialog = document.getElementById('reminderDialog');
   const state = getState();
@@ -68,6 +95,7 @@ export function editReminder(id) {
 
   // Llenar el formulario
   document.getElementById('dlgRemTitle').value = reminder.title;
+  document.getElementById('dlgRemTitle').dataset.id = reminder.id;
   document.getElementById('dlgRemType').value = reminder.type;
   document.getElementById('dlgRemLead').value = reminder.lead;
   document.getElementById('dlgRemDate').value = reminder.date.slice(0, 16);

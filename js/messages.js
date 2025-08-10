@@ -27,6 +27,15 @@ export function showMsgDialog(companyName) {
     `<option value="${i}">${tpl.substring(0, 50)}...</option>`
   ).join('');
   
+  // Recordar última plantilla por industria
+  const lastKey = `lastTpl:${lead.industry || 'default'}`;
+  const lastIdx = localStorage.getItem(lastKey);
+  if (lastIdx && industryTemplates[lastIdx]) {
+    select.value = String(lastIdx);
+  } else {
+    select.value = '0';
+  }
+  
   // Función para actualizar preview
   function updateMessagePreview() {
     const currentTemplates = state.templates[lead.industry] || state.templates.default;
@@ -47,6 +56,8 @@ export function showMsgDialog(companyName) {
     e.preventDefault();
     const msg = document.getElementById('dlgMsgText').value;
     lead.lastMsg = msg;
+  // Guardar última plantilla seleccionada
+  localStorage.setItem(lastKey, String(select.value));
     setState(state);
     dialog.close();
     showToast('Mensaje enviado');
