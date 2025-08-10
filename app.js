@@ -1,4 +1,3 @@
-document.addEventListener('DOMContentLoaded', init);
 
 // Mini-CRM B2B - JS sin frameworks
 // Estado global y helpers
