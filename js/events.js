@@ -4,6 +4,8 @@ import { initPipeline } from './pipeline.js';
 import { initTemplates } from './templates.js';
 import { initReminders } from './reminders.js';
 import { initImport } from './import.js';
+// Asegura registro de handlers de mensajes (expone window.showMsgDialog)
+import './messages.js';
 
 export function initEventListeners() {
   // Event listeners para las pestañas

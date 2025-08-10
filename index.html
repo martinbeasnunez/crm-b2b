@@ -32,68 +32,69 @@
 
   <script type="module">
     import { showTab } from './js/navigation.js';
-    import { initEventListeners } from './js/events.js';
-    import { loadState } from './js/common.js';
+  import { initEventListeners } from './js/events.js';
     import { renderLeads } from './js/leads.js';
-    
-    // Cargar las vistas HTML
-    async function loadViews() {
+
+    async function fetchText(path) {
       try {
-        const sections = {
-          leads: document.getElementById('tab-leads'),
-          pipeline: document.getElementById('tab-pipeline'),
-          plantillas: document.getElementById('tab-plantillas'),
-          recordatorios: document.getElementById('tab-recordatorios'),
-          importar: document.getElementById('tab-importar')
-        };
-        
-        console.log('Cargando vistas HTML...');
-        
-        // Cargar las vistas HTML
-        const responses = await Promise.all([
-          fetch('views/leads.html'),
-          fetch('views/pipeline.html'),
-          fetch('views/templates.html'),
-          fetch('views/reminders.html'),
-          fetch('views/import.html'),
-          fetch('views/dialogs.html')
-        ]);
-        
-        const [leads, pipeline, templates, reminders, importView, dialogs] = await Promise.all(
-          responses.map(r => r.text())
-        );
-        
-        console.log('Vistas cargadas, insertando contenido...');
-        
-        // Insertar el contenido
-        sections.leads.innerHTML = leads;
-        sections.pipeline.innerHTML = pipeline;
-        sections.plantillas.innerHTML = templates;
-        sections.recordatorios.innerHTML = reminders;
-        sections.importar.innerHTML = importView;
-        
-        // Agregar los diálogos al body
-        const dialogsContainer = document.createElement('div');
-        dialogsContainer.innerHTML = dialogs;
-        document.body.appendChild(dialogsContainer);
-        
-        console.log('Inicializando aplicación...');
-        
-        // Cargar estado inicial
-        loadState();
-        
-        // Inicializar eventos y UI
-        initEventListeners();
-        showTab('leads');
-        renderLeads();
-        
-        console.log('Aplicación inicializada correctamente');
-      } catch (error) {
-        console.error('Error al cargar la aplicación:', error);
+        const res = await fetch(path);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.text();
+      } catch (e) {
+        console.warn(`No se pudo cargar ${path} con fetch:`, e.message);
+        // Fallback si se abre con file:// o restricciones CORS: mostrar aviso mínimo
+        return `<div class="warn">No se pudo cargar ${path}. Sirve el sitio con un servidor local.</div>`;
       }
     }
-    
-    // Cargar todo cuando el DOM esté listo
+
+    // Cargar las vistas HTML
+    async function loadViews() {
+      const sections = {
+        leads: document.getElementById('tab-leads'),
+        pipeline: document.getElementById('tab-pipeline'),
+        plantillas: document.getElementById('tab-plantillas'),
+        recordatorios: document.getElementById('tab-recordatorios'),
+        importar: document.getElementById('tab-importar')
+      };
+
+      console.log('Cargando vistas HTML...');
+
+      const [leads, pipeline, templates, reminders, importView, dialogs] = await Promise.all([
+        fetchText('views/leads.html'),
+        fetchText('views/pipeline.html'),
+        fetchText('views/templates.html'),
+        fetchText('views/reminders.html'),
+        fetchText('views/import.html'),
+        fetchText('views/dialogs.html')
+      ]);
+
+      console.log('Vistas cargadas, insertando contenido...');
+
+      // Insertar el contenido
+      sections.leads.innerHTML = leads;
+      sections.pipeline.innerHTML = pipeline;
+      sections.plantillas.innerHTML = templates;
+      sections.recordatorios.innerHTML = reminders;
+      sections.importar.innerHTML = importView;
+
+      // Agregar los diálogos al body
+      const dialogsContainer = document.createElement('div');
+      dialogsContainer.innerHTML = dialogs;
+      document.body.appendChild(dialogsContainer);
+
+      console.log('Inicializando aplicación...');
+
+      // Inicializar eventos y UI
+      initEventListeners();
+      showTab('leads');
+      // Render inicial explícito
+      if (document.getElementById('leadsTableWrap')) {
+        renderLeads();
+      }
+
+      console.log('Aplicación inicializada correctamente');
+    }
+
     document.addEventListener('DOMContentLoaded', loadViews);
   </script>
 </body>

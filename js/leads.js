@@ -135,6 +135,26 @@ export function deleteLead(companyName) {
   }
 }
 
+// Inicialización del módulo de Leads
+export function initLeads() {
+  // Botón nuevo lead
+  document.getElementById('addLeadBtn')?.addEventListener('click', () => editLead());
+  // Búsqueda
+  document.getElementById('leadSearch')?.addEventListener('input', renderLeads);
+  // Dialogo Lead: cancelar
+  document.getElementById('dlgCancel')?.addEventListener('click', () => document.getElementById('leadDialog').close());
+  // Dialogo Lead: eliminar
+  document.getElementById('dlgDelete')?.addEventListener('click', () => {
+    const companyName = document.getElementById('dlgCompany')?.value;
+    if (companyName) deleteLead(companyName);
+  });
+  // Render inicial
+  if (document.getElementById('leadsTableWrap')) {
+    renderLeads();
+  }
+}
+
 // Exponer funciones necesarias globalmente
 window.editLead = editLead;
 window.deleteLead = deleteLead;
+window.renderLeads = renderLeads;
