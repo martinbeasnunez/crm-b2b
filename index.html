@@ -43,12 +43,59 @@
       <div id="tplList"></div>
     </section>
     <section id="tab-recordatorios" class="panel hidden">
-      <div class="grid g-2">
-        <div><input type="text" id="remInput" placeholder="Nuevo recordatorio..." /></div>
-        <div style="text-align:right"><button class="btn primary" id="addRemBtn">Agregar</button></div>
+      <div id="remindersContainer">
+        <!-- El contenido se generará dinámicamente -->
       </div>
-      <div id="remList"></div>
     </section>
+    
+    <!-- Dialog Recordatorio -->
+    <dialog id="reminderDialog">
+      <form method="dialog" class="dlg">
+        <div class="dlg-h">Recordatorio</div>
+        <div class="dlg-c grid g-2">
+          <div>
+            <label>Título</label>
+            <input type="text" id="dlgRemTitle" required />
+          </div>
+          <div>
+            <label>Fecha y hora</label>
+            <input type="datetime-local" id="dlgRemDate" required />
+          </div>
+          <div>
+            <label>Tipo</label>
+            <select id="dlgRemType">
+              <option value="call">Llamada</option>
+              <option value="meeting">Reunión</option>
+              <option value="email">Email</option>
+              <option value="other">Otro</option>
+            </select>
+          </div>
+          <div>
+            <label>Lead asociado</label>
+            <select id="dlgRemLead">
+              <option value="">Sin lead</option>
+            </select>
+          </div>
+          <div>
+            <label>Prioridad</label>
+            <select id="dlgRemPriority">
+              <option value="high">Alta</option>
+              <option value="medium">Media</option>
+              <option value="low">Baja</option>
+            </select>
+          </div>
+          <div class="g-2">
+            <label>Notas</label>
+            <textarea id="dlgRemNotes" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="dlg-f">
+          <button type="button" class="btn danger" id="dlgRemDelete">Eliminar</button>
+          <button type="button" class="btn ghost" id="dlgRemCancel">Cancelar</button>
+          <button type="submit" class="btn primary">Guardar</button>
+        </div>
+      </form>
+    </dialog>
     <section id="tab-importar" class="panel hidden">
       <div class="grid g-2">
         <div><input type="file" id="csvInput" accept=".csv" /></div>

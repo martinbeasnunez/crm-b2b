@@ -20,7 +20,18 @@ function getState() {
       'Hola {{contactName}}, te escribo de {{companyName}} para conversar sobre una posible colaboración.',
       'Estimado/a {{contactName}}, ¿podemos agendar una llamada para conocer más sobre {{companyName}}?'
     ],
-    reminders: []
+    reminders: [
+      {
+        id: 1,
+        title: 'Llamar a Ramada Encore',
+        type: 'call',
+        lead: 'Ramada Encore',
+        date: '2025-08-12T10:00:00',
+        priority: 'high',
+        notes: 'Presentar propuesta de servicio VIP',
+        status: 'pending'
+      }
+    ]
   };
 }
 function setState(state) {
@@ -557,27 +568,104 @@ function formatDate(dateStr) {
     minute: '2-digit'
   });
 }
-window.markRem = function(idx) {
-  const state = getState();
-  state.reminders[idx].done = true;
-  setState(state);
-  renderReminders();
+// Funciones de recordatorios
+window.showNewReminderDialog = function() {
+  const dialog = document.getElementById('reminderDialog');
+  dialog.querySelector('form').reset();
+  
+  // Llenar select de leads
+  const leads = getState().leads;
+  const leadSelect = document.getElementById('dlgRemLead');
+  leadSelect.innerHTML = '<option value="">Sin lead</option>' + 
+    leads.map(l => `<option value="${l.companyName}">${l.companyName}</option>`).join('');
+  
+  // Establecer fecha mínima como hoy
+  const dateInput = document.getElementById('dlgRemDate');
+  const now = new Date();
+  dateInput.min = now.toISOString().slice(0,16);
+  
+  dialog.showModal();
 };
-window.delRem = function(idx) {
+
+window.completeReminder = function(id, event) {
+  event.stopPropagation();
   const state = getState();
-  state.reminders.splice(idx,1);
-  setState(state);
-  renderReminders();
+  const reminder = state.reminders.find(r => r.id === id);
+  if (reminder) {
+    reminder.status = 'completed';
+    setState(state);
+    renderReminders();
+    showToast('Recordatorio completado');
+  }
 };
-document.getElementById('addRemBtn').onclick = function() {
-  const val = document.getElementById('remInput').value.trim();
-  if (!val) return;
+
+window.deleteReminder = function(id, event) {
+  event.stopPropagation();
   const state = getState();
-  state.reminders.push({text:val,done:false});
+  state.reminders = state.reminders.filter(r => r.id !== id);
   setState(state);
-  document.getElementById('remInput').value = '';
   renderReminders();
-  showToast('Recordatorio agregado');
+  showToast('Recordatorio eliminado');
+};
+
+window.showReminderDetails = function(id) {
+  const state = getState();
+  const reminder = state.reminders.find(r => r.id === id);
+  if (!reminder) return;
+
+  const dialog = document.getElementById('reminderDialog');
+  document.getElementById('dlgRemTitle').value = reminder.title;
+  document.getElementById('dlgRemDate').value = reminder.date.slice(0,16);
+  document.getElementById('dlgRemType').value = reminder.type;
+  document.getElementById('dlgRemLead').value = reminder.lead || '';
+  document.getElementById('dlgRemPriority').value = reminder.priority;
+  document.getElementById('dlgRemNotes').value = reminder.notes || '';
+  
+  dialog.dataset.reminderId = id;
+  dialog.showModal();
+};
+
+// Event listeners para el diálogo de recordatorios
+document.getElementById('reminderDialog').querySelector('form').onsubmit = function(e) {
+  e.preventDefault();
+  const state = getState();
+  const id = parseInt(this.closest('dialog').dataset.reminderId) || Date.now();
+  
+  const reminder = {
+    id,
+    title: document.getElementById('dlgRemTitle').value,
+    date: document.getElementById('dlgRemDate').value,
+    type: document.getElementById('dlgRemType').value,
+    lead: document.getElementById('dlgRemLead').value,
+    priority: document.getElementById('dlgRemPriority').value,
+    notes: document.getElementById('dlgRemNotes').value,
+    status: 'pending'
+  };
+  
+  const idx = state.reminders.findIndex(r => r.id === id);
+  if (idx >= 0) {
+    state.reminders[idx] = reminder;
+  } else {
+    state.reminders.push(reminder);
+  }
+  
+  setState(state);
+  this.closest('dialog').close();
+  renderReminders();
+  showToast('Recordatorio guardado');
+};
+
+document.getElementById('dlgRemCancel').onclick = function() {
+  document.getElementById('reminderDialog').close();
+};
+
+document.getElementById('dlgRemDelete').onclick = function() {
+  const dialog = document.getElementById('reminderDialog');
+  const id = parseInt(dialog.dataset.reminderId);
+  if (id) {
+    deleteReminder(id, event);
+  }
+  dialog.close();
 };
 // Dialog Recordatorio
 document.getElementById('dlgRemCancel').onclick = ()=>{
