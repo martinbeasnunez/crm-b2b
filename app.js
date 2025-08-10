@@ -8,8 +8,9 @@ const LS_KEY = 'miniCrmB2B';
 function getState() {
   let state = localStorage.getItem(LS_KEY);
   if (state) return JSON.parse(state);
-  // Seed inicial
-  return {
+  
+  // Estado inicial por defecto
+  const initialState = {
     leads: [
       {companyName:'Ramada Encore',contactName:'Úrsula',phone:'+51999999999',industry:'Hotelería',size:60,district:'San Isidro',email:'',notes:'',source:'Web',status:'Nuevo'},
       {companyName:'Clínica Providencia',contactName:'Admisión',phone:'+51988888888',industry:'Clínica',size:80,district:'San Borja',email:'',notes:'',source:'Web',status:'Calificado'},
@@ -32,6 +33,10 @@ function getState() {
       }
     ]
   };
+  
+  // Guardar el estado inicial en localStorage
+  localStorage.setItem(LS_KEY, JSON.stringify(initialState));
+  return initialState;
 }
 
 function setState(state) {
@@ -320,8 +325,23 @@ function deleteLead() {
   }
 }
 
+// Templates
+function getSuggestedTemplate(lead) {
+  if (!lead) return '';
+  const state = getState();
+  return state.templates[0] || '';
+}
+
 // Inicialización
+function initializeState() {
+  const state = getState();
+  if (!state.leads || !state.leads.length) {
+    setState(getState()); // Esto forzará la creación del estado inicial
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initializeState();
   initializeEventListeners();
   showTab('leads');
 });
