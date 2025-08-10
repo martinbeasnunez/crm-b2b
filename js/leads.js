@@ -1,4 +1,18 @@
 import { getState, setState, showToast, scoreICP } from './common.js';
+import { getState as _getState } from './common.js';
+
+function nextStepLabel(lead) {
+  try {
+    const state = _getState();
+    // Clave de industria normalizada se resuelve en messages.js, aquí usamos industria tal cual para contar
+    const total = 3; // definimos 3 toques por la normalización
+    const sent = Array.isArray(lead.msgHistory) ? lead.msgHistory.length : 0;
+    if (sent >= total) return '✔️ Completo';
+    return `${sent + 1}/${total}`;
+  } catch (e) {
+    return '1/3';
+  }
+}
 
 export function renderLeads() {
   const state = getState();
@@ -23,6 +37,7 @@ export function renderLeads() {
           <th>Tamaño</th>
           <th>ICP</th>
           <th>Estado</th>
+          <th>Sig.</th>
           <th>Msg</th>
           <th></th>
         </tr>
@@ -38,6 +53,7 @@ export function renderLeads() {
             <td>${l.size || ''}</td>
             <td>${l.icpScore}</td>
             <td>${l.status} ${l.lastMsg ? '💬' : ''}</td>
+            <td>${nextStepLabel(l)}</td>
             <td>
               <button class='btn primary' onclick='window.showMsgDialog(${JSON.stringify(l.companyName)})'>
                 💬 Mensaje

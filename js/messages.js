@@ -54,12 +54,31 @@ export function showMsgDialog(companyName) {
   // Preview inicial
   window.updateMessagePreview = updateMessagePreview;
   updateMessagePreview();
+
+  // Cancelar
+  document.getElementById('dlgMsgCancel')?.addEventListener('click', () => {
+    dialog.close();
+  }, { once: true });
   
   // Manejar envío
   dialog.onsubmit = (e) => {
     e.preventDefault();
     const msg = document.getElementById('dlgMsgText').value;
+    const tplIndex = Number(select.value);
+    const currentTemplates = state.templates[key] || state.templates.default || [];
+    const selected = currentTemplates[tplIndex];
+    const title = (typeof selected === 'string') ? `Mensaje ${tplIndex+1}` : (selected?.title || `Mensaje ${tplIndex+1}`);
+
+    // Guardar último mensaje y historial
     lead.lastMsg = msg;
+    if (!Array.isArray(lead.msgHistory)) lead.msgHistory = [];
+    lead.msgHistory.push({
+      date: new Date().toISOString(),
+      industryKey: key,
+      index: tplIndex,
+      title,
+      text: msg
+    });
   // Guardar última plantilla seleccionada
   localStorage.setItem(lastKey, String(select.value));
     setState(state);
