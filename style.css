@@ -169,41 +169,92 @@ tr:hover td {
   display: flex;
   gap: 1.5rem;
   overflow-x: auto;
-  padding-bottom: 1rem;
+  padding: 1rem;
+  min-height: calc(100vh - 200px);
 }
-.col {
+
+.kanban-column {
   background: var(--muted);
   border-radius: var(--radius);
-  min-width: 220px;
-  padding: 0.5rem;
+  min-width: 300px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
   box-shadow: var(--shadow);
-  backdrop-filter: blur(var(--blur));
   animation: fadeInUp var(--trans);
 }
-.col-title {
-  font-weight: 700;
-  color: var(--acc);
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.5px;
-}
-.card {
-  background: var(--panel);
-  border-radius: 10px;
-  box-shadow: 0 2px 12px #0004;
-  padding: 0.7rem;
+
+.kanban-header {
+  padding: 1rem;
+  font-weight: 600;
   color: var(--text);
-  cursor: grab;
-  transition: box-shadow var(--trans), opacity var(--trans);
-  font-weight: 500;
-  animation: fadeInUp var(--trans);
+  border-bottom: 2px solid var(--bg);
+  background: var(--panel);
+  border-radius: var(--radius) var(--radius) 0 0;
 }
-.card.dragging {
-  opacity: 0.5;
-  box-shadow: 0 4px 24px #0006;
+
+.kanban-body {
+  padding: 1rem;
+  flex: 1;
+  overflow-y: auto;
+}
+.kanban-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--trans);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--muted);
+}
+
+.kanban-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card-title {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.card-contact {
+  font-size: 0.9rem;
+  color: var(--sub);
+  margin-bottom: 0.5rem;
+}
+
+.card-phone {
+  font-size: 0.9rem;
+  color: var(--sub);
+  margin-bottom: 0.5rem;
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.tag {
+  background: var(--muted);
+  color: var(--sub);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+}
+
+.card-score {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--muted);
+  color: var(--acc);
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 .hidden {
   display: none !important;
