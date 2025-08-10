@@ -199,20 +199,25 @@ tr:hover td {
   overflow-y: auto;
 }
 .kanban-card {
-  background: var(--panel);
-  border-radius: var(--radius);
-  padding: 1rem;
-  margin-bottom: 1rem;
-  color: var(--text);
-  cursor: pointer;
-  transition: all var(--trans);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--muted);
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: move;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
 .kanban-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.kanban-card.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 
 .card-title {

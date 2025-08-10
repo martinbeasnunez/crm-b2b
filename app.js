@@ -115,9 +115,13 @@ function renderKanban() {
       ${STAGES.map(stage => `
         <div class="kanban-column">
           <div class="kanban-header">${stage}</div>
-          <div class="kanban-body" data-stage="${stage}">
+          <div class="kanban-body" data-stage="${stage}" ondragover="handleDragOver(event)" ondrop="handleDrop(event, '${stage}')">
             ${leads.filter(l => l.status === stage).map(lead => `
-              <div class="kanban-card" onclick="editLead('${lead.companyName}')">
+              <div class="kanban-card" 
+                draggable="true" 
+                ondragstart="handleDragStart(event, '${lead.companyName}')"
+                ondragend="handleDragEnd(event)"
+                onclick="handleCardClick(event, '${lead.companyName}')">
                 <div class="card-title">${lead.companyName}</div>
                 <div class="card-contact">${lead.contactName}</div>
                 ${lead.phone ? `<div class="card-phone">📱 ${lead.phone}</div>` : ''}
@@ -136,6 +140,43 @@ function renderKanban() {
   
   document.getElementById('kanbanWrap').innerHTML = html;
 }
+
+// Funciones de Drag & Drop para Kanban
+function handleDragStart(e, companyName) {
+  e.dataTransfer.setData('text/plain', companyName);
+  e.target.classList.add('dragging');
+}
+
+function handleDragEnd(e) {
+  e.target.classList.remove('dragging');
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDrop(e, newStatus) {
+  e.preventDefault();
+  const companyName = e.dataTransfer.getData('text/plain');
+  
+  const state = getState();
+  const lead = state.leads.find(l => l.companyName === companyName);
+  
+  if (lead && lead.status !== newStatus) {
+    lead.status = newStatus;
+    setState(state);
+    renderKanban();
+    showToast(`${lead.companyName} movido a ${newStatus}`);
+  }
+}
+
+function handleCardClick(e, companyName) {
+  // Si no estamos arrastrando, editamos el lead
+  if (!e.target.classList.contains('dragging')) {
+    editLead(companyName);
+  }
+  }
 
 // Gestión de Leads
 function renderLeads() {
