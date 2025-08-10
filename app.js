@@ -200,9 +200,37 @@ function formatDate(dateStr) {
 }
 
 // Event Listeners
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.onclick = () => showTab(btn.dataset.tab);
-});
+function initializeEventListeners() {
+  // Tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.onclick = () => showTab(btn.dataset.tab);
+  });
+
+  // Lead management
+  document.getElementById('addLeadBtn').onclick = () => editLead();
+  document.getElementById('leadSearch').oninput = renderLeads;
+  
+  // Lead dialog
+  document.getElementById('dlgCancel').onclick = () => document.getElementById('leadDialog').close();
+  document.getElementById('dlgDelete').onclick = deleteLead;
+  
+  // Reminders
+  const remDialog = document.getElementById('reminderDialog');
+  document.getElementById('dlgRemCancel').onclick = () => remDialog.close();
+  document.getElementById('dlgRemDelete').onclick = deleteReminder;
+  
+  // Import/Export
+  document.getElementById('importBtn').onclick = importCSV;
+  document.getElementById('exportBtn').onclick = exportCSV;
+  
+  // Search input debounce
+  const searchInput = document.getElementById('leadSearch');
+  let debounceTimeout;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(renderLeads, 300);
+  });
+}
 
 // Toast notifications
 function showToast(msg) {
@@ -214,5 +242,6 @@ function showToast(msg) {
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
+  initializeEventListeners();
   showTab('leads');
 });
