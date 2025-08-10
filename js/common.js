@@ -7,28 +7,34 @@ const LS_KEY = 'miniCrmB2B';
 // Plantillas base por industria
 const DEFAULT_TEMPLATES = {
   'Hotelería': [
-    '¡Hola {{contactName}}! 👋 En {{companyName}} podemos garantizar blancura perfecta en toallas y sábanas, con entregas puntuales y control VIP. ¿Agendamos una prueba esta semana? 🏨✨',
-    '{{contactName}}, impulsa la experiencia de tus huéspedes en {{companyName}}:\n✅ Blancura total\n✅ Entregas a tiempo\n✅ Protocolos VIP\n\n¿Coordinamos una visita? 🏨'
+    { title: '1) Primer contacto', text: 'Hola {{contactName}} 👋, soy de GetLavado. Ayudamos a hoteles como {{companyName}} a mantener toallas y sábanas con blancura 5⭐ y entregas puntuales. Hoy tenemos 2 cupos para prueba gratuita esta semana (se agotan rápido). ¿Te viene una demo de 15 min hoy o mañana? 🏨✨' },
+    { title: '2) Seguimiento', text: 'Hola {{contactName}}, ¿pudiste revisar mi mensaje? En {{companyName}} podrían ahorrar tiempo y mejorar la experiencia del huésped con: \n• Blancura uniforme \n• Entrega a tiempo \n• Control de inventario. \n¿Te agendo una demo express esta semana? �' },
+    { title: '3) Último toque', text: '{{contactName}}, cierro hilo por ahora. Aún me queda 1 cupo de prueba gratuita para hoteles esta semana. Si te interesa, te aparto ese espacio para {{companyName}}. Si no aplica, me indicas y no molesto más. 🙌' }
   ],
   'Clínica': [
-    '¡Hola {{contactName}}! En {{companyName}} la higiene es crítica. Ofrecemos esterilización certificada y control de calidad riguroso. ¿Te muestro cómo operamos? 🏥✨',
-    '{{contactName}}, protocolos sanitarios y servicio 24/7 para {{companyName}}. Optimiza costos sin perder calidad. ¿Conversamos? 🏥'
+    { title: '1) Primer contacto', text: 'Hola {{contactName}} 👋, en GetLavado trabajamos con protocolos sanitarios y esterilización certificada para clínicas. Podemos ayudar a {{companyName}} con higiene rigurosa y entregas 24/7. Tengo cupos para una prueba guiada esta semana. ¿Agendamos 15 min? 🏥✨' },
+    { title: '2) Seguimiento', text: '{{contactName}}, ¿qué te parecería reducir rechazos por manchas y mejorar la rotación? En {{companyName}} podemos aplicar control de calidad por lote y trazabilidad. ¿Te muestro un caso rápido mañana? 📈' },
+    { title: '3) Último toque', text: 'Cierro el hilo, {{contactName}}. Queda 1 espacio de onboarding esta semana para clínicas. Si te encaja, lo reservo para {{companyName}}. Si no, te leo y cierro. 🙏' }
   ],
   'Residencial': [
-    'Hola {{contactName}}, en {{companyName}} podemos mejorar la rotación y cuidado de ropa de cama y toallas. Servicio confiable y precios claros. ¿Te interesa una demo? 🏠',
-    '{{contactName}}, cuidamos la ropa de cama de {{companyName}} con estándares hoteleros. Calidad y puntualidad. ¿Agendamos? 🏠'
+    { title: '1) Primer contacto', text: 'Hola {{contactName}} 👋, ayudamos a residencias como {{companyName}} con ropa de cama impecable y entregas puntuales. Podemos comenzar con una prueba en 48h. ¿Te coordino una llamada de 10-15 min? 🏠' },
+    { title: '2) Seguimiento', text: '{{contactName}}, beneficios típicos para residencias: \n• Puntualidad \n• Ropa suave y sin perfumes fuertes \n• Menos retrabajos. ¿Vemos un piloto esta semana? ✅' },
+    { title: '3) Último toque', text: '{{contactName}}, última nota: tengo 1 horario libre para pilotos de residencias. Si te interesa para {{companyName}}, lo aparto hoy. Si no aplica, me dices y cierro. 👍' }
   ],
   'Spa': [
-    'Hola {{contactName}} 👋, en {{companyName}} podemos mantener toallas y batas impecables con suavidad premium. ¿Coordinamos una prueba? 💆‍♀️',
-    'Para {{companyName}}: lavado delicado, perfumes neutros y entregas puntuales. ¿Te va una demo? 💆'
+    { title: '1) Primer contacto', text: 'Hola {{contactName}} 👋, mantenemos toallas y batas con suavidad premium y neutras para spa. {{companyName}} podría comenzar con una prueba sin costo. ¿Te va 15 min hoy/mañana? 💆‍♀️' },
+    { title: '2) Seguimiento', text: '{{contactName}}, valor para {{companyName}}: \n• Suavidad consistente \n• Sin perfumes intensos \n• Entregas puntuales. ¿Te muestro referencias + tiempos? 📦' },
+    { title: '3) Último toque', text: 'Cierro por ahora. Queda 1 demo libre esta semana para spa. Si te interesa para {{companyName}}, te reservo. Si no, sin problema. �' }
   ],
   'Airbnb': [
-    'Hola {{contactName}}, escalamos la operación de lavandería para {{companyName}} con retiros y entregas sincronizados por reserva. ¿Te cuento? 🏡',
-    'Check-in sin estrés para {{companyName}}: ropa impecable, inventario controlado y tarifa plana. ¿Agendamos? 🏡'
+    { title: '1) Primer contacto', text: 'Hola {{contactName}} 👋, optimizamos la rotación de ropa para Airbnb: recogidas y entregas sincronizadas por reserva. {{companyName}} puede empezar con plan piloto. ¿Te agendo 15 min? 🏡' },
+    { title: '2) Seguimiento', text: '{{contactName}}, con GetLavado: \n• Check-in sin estrés \n• Inventario controlado \n• Tarifa plana. ¿Vemos números para {{companyName}}? 💸' },
+    { title: '3) Último toque', text: 'Último ping, {{contactName}}. Queda 1 cupo de piloto Airbnb esta semana. Si te encaja para {{companyName}}, lo aparto. Si no, cierro hilo. 👍' }
   ],
   'default': [
-    'Hola {{contactName}}, ¿cómo podemos ayudar a {{companyName}} hoy?\n✅ Servicio personalizado\n✅ Atención inmediata\n\n¿Coordinamos una llamada? 🤝',
-    '{{contactName}}, optimiza las operaciones de {{companyName}}:\n✅ Servicio confiable\n✅ Precios transparentes\n✅ Calidad garantizada\n\n¿Coordinamos una visita? 🚀'
+    { title: '1) Primer contacto', text: 'Hola {{contactName}} 👋, en GetLavado ayudamos a empresas como {{companyName}} con lavandería confiable, rápida y de calidad. Tengo cupos para una demo de 15 min esta semana. ¿La agendamos? 🚀' },
+    { title: '2) Seguimiento', text: '{{contactName}}, típicamente logramos: \n• Menos retrabajos \n• Entregas a tiempo \n• Calidad consistente. ¿Te muestro un caso en 10 min? 📈' },
+    { title: '3) Último toque', text: 'Cierro por ahora. Aún tengo 1 espacio para prueba gratuita esta semana para {{companyName}}. Si te interesa, te reservo. Si no aplica, me dices y cierro. �' }
   ]
 };
 
@@ -98,11 +104,27 @@ function normalizeTemplates(state) {
     state.templates.default = DEFAULT_TEMPLATES.default.slice();
   }
   // rellenar industrias conocidas si faltan
-  Object.keys(DEFAULT_TEMPLATES).forEach(key => {
-    if (key === 'default') return;
-    if (!Array.isArray(state.templates[key]) || state.templates[key].length === 0) {
-      // no sobreescribe si ya existe contenido del usuario
-      state.templates[key] = DEFAULT_TEMPLATES[key].slice();
-    }
-  });
+    const toObj = (entry, idx) => {
+      if (typeof entry === 'string') {
+        const titles = ['1) Primer contacto', '2) Seguimiento', '3) Último toque'];
+        return { title: titles[idx] || `Mensaje ${idx + 1}`, text: entry };
+      }
+      if (entry && typeof entry === 'object' && 'text' in entry) return entry;
+      return { title: `Mensaje ${idx + 1}`, text: '' };
+    };
+
+    const ensureThree = (arr) => {
+      const out = arr.map(toObj);
+      while (out.length < 3) out.push({ title: `Mensaje ${out.length + 1}`, text: '' });
+      return out.slice(0, 3);
+    };
+
+    Object.keys(DEFAULT_TEMPLATES).forEach(key => {
+      if (key === 'default') return;
+      if (!Array.isArray(state.templates[key]) || state.templates[key].length === 0) {
+        // no sobreescribe si ya existe contenido del usuario
+        state.templates[key] = DEFAULT_TEMPLATES[key].slice();
+      }
+      state.templates[key] = ensureThree(state.templates[key]);
+    });
 }

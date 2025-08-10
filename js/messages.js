@@ -24,12 +24,13 @@ export function showMsgDialog(companyName) {
   
   // Llenar el selector de plantillas
   const select = document.getElementById('dlgMsgTemplate');
-  select.innerHTML = industryTemplates.map((tpl, i) => 
-    `<option value="${i}">${tpl.substring(0, 50)}...</option>`
-  ).join('');
+  select.innerHTML = industryTemplates.map((tpl, i) => {
+    const title = typeof tpl === 'string' ? `${tpl.substring(0, 40)}...` : (tpl.title || `Mensaje ${i+1}`);
+    return `<option value="${i}">${title}</option>`;
+  }).join('');
   
   // Recordar última plantilla por industria
-  const lastKey = `lastTpl:${lead.industry || 'default'}`;
+  const lastKey = `lastTpl:${key}`;
   const lastIdx = localStorage.getItem(lastKey);
   if (lastIdx && industryTemplates[lastIdx]) {
     select.value = String(lastIdx);
@@ -40,10 +41,12 @@ export function showMsgDialog(companyName) {
   // Función para actualizar preview
   function updateMessagePreview() {
     const currentTemplates = state.templates[key] || state.templates.default || [];
-    const selectedTemplate = currentTemplates[select.value];
-    let msg = selectedTemplate;
-    Object.keys(lead).forEach(key => {
-      msg = msg.replace(new RegExp(`{{${key}}}`, 'g'), lead[key]);
+    const selected = currentTemplates[Number(select.value)];
+    const text = typeof selected === 'string' ? selected : (selected?.text || '');
+    let msg = text;
+    Object.keys(lead).forEach(k => {
+      const val = lead[k] ?? '';
+      msg = msg.replace(new RegExp(`{{${k}}}`, 'g'), String(val));
     });
     document.getElementById('dlgMsgText').value = msg;
   }
