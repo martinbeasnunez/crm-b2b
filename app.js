@@ -42,20 +42,63 @@ function showTab(tab) {
   if (tab==='plantillas') renderTemplates();
   if (tab==='recordatorios') renderReminders();
 }
-// Leads
+// Leads mejorado
 function renderLeads() {
   const state = getState();
   let leads = state.leads.map(l => ({...l, icpScore: scoreICP(l)}));
   const q = document.getElementById('leadSearch').value.toLowerCase();
   if (q) leads = leads.filter(l => (l.companyName+l.contactName).toLowerCase().includes(q));
   leads = leads.sort((a,b)=>b.icpScore-a.icpScore);
-  let html = `<table><thead><tr><th>Empresa</th><th>Contacto</th><th>Teléfono</th><th>Industria</th><th>Distrito</th><th>Tamaño</th><th>ICP</th><th>Estado</th><th></th></tr></thead><tbody>`;
+  let html = `<table><thead><tr><th>Empresa</th><th>Contacto</th><th>Teléfono</th><th>Industria</th><th>Distrito</th><th>Tamaño</th><th>ICP</th><th>Estado</th><th>Msg</th><th></th></tr></thead><tbody>`;
   for(const l of leads) {
-    html += `<tr><td>${l.companyName}</td><td>${l.contactName}</td><td>${l.phone}</td><td>${l.industry}</td><td>${l.district}</td><td>${l.size||''}</td><td>${l.icpScore}</td><td>${l.status}</td><td><button class="btn ghost" onclick="editLead('${l.companyName}')">Editar</button></td></tr>`;
+    // Indicador visual
+    let statusIcon = l.lastMsg ? '💬' : '';
+    html += `<tr${l.lastMsg?" style='background:var(--muted)'":""}><td>${l.companyName}</td><td>${l.contactName}</td><td>${l.phone}</td><td>${l.industry}</td><td>${l.district}</td><td>${l.size||''}</td><td>${l.icpScore}</td><td>${l.status} ${statusIcon}</td>`;
+    // Sugerencia de plantilla
+    let tpl = getSuggestedTemplate(l, state.templates);
+    html += `<td><button class='btn primary' onclick="showMsgDialog('${l.companyName}')">${tpl?'Sugerir':''}</button></td>`;
+    html += `<td><button class=\"btn ghost\" onclick=\"editLead('${l.companyName}')\">Editar</button></td></tr>`;
   }
   html += '</tbody></table>';
   document.getElementById('leadsTableWrap').innerHTML = html;
 }
+
+// Sugerencia de plantilla según industria y etapa
+function getSuggestedTemplate(lead, templates) {
+  if (!templates || !templates.length) return '';
+  // Ejemplo: si industria es hotelería, usar la primera plantilla
+  if ((lead.industry||'').toLowerCase().includes('hotel')) return templates[0];
+  if ((lead.industry||'').toLowerCase().includes('clínica')) return templates[1];
+  return templates[0];
+}
+
+// Dialog para mostrar/copy/enviar mensaje y guardar historial
+window.showMsgDialog = function(companyName) {
+  const state = getState();
+  const lead = state.leads.find(l=>l.companyName===companyName);
+  if (!lead) return;
+  let tpl = getSuggestedTemplate(lead, state.templates);
+  let msg = tpl.replace(/\{\{(\w+)\}\}/g, (_,k)=>lead[k]||'');
+  let dlg = document.createElement('dialog');
+  dlg.className = 'dlg';
+  dlg.innerHTML = `<div class='dlg-h'>Mensaje sugerido</div><div class='dlg-c'><textarea style='width:100%;height:80px'>${msg}</textarea></div><div class='dlg-f'><button class='btn primary' id='copyMsgBtn'>Copiar</button><button class='btn ok' id='sendMsgBtn'>Marcar enviado</button><button class='btn ghost' id='closeMsgBtn'>Cerrar</button></div>`;
+  document.body.appendChild(dlg);
+  dlg.showModal();
+  dlg.querySelector('#copyMsgBtn').onclick = ()=>{
+    navigator.clipboard.writeText(msg);
+    showToast('Mensaje copiado');
+  };
+  dlg.querySelector('#sendMsgBtn').onclick = ()=>{
+    lead.lastMsg = msg;
+    lead.lastMsgDate = new Date().toISOString();
+    setState(state);
+    dlg.close();
+    renderLeads();
+    showToast('Mensaje marcado como enviado');
+  };
+  dlg.querySelector('#closeMsgBtn').onclick = ()=>dlg.close();
+  dlg.onclose = ()=>dlg.remove();
+};
 window.editLead = function(companyName) {
   const state = getState();
   const lead = state.leads.find(l=>l.companyName===companyName);
