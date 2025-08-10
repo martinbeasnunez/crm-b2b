@@ -223,18 +223,61 @@ function getSuggestedTemplate(lead) {
     .replace(/{companyName}/g, lead.companyName);
 }
 
+// Función para cambiar entre pestañas de mensaje
+window.showMsgPreview = function(btn, type) {
+  // Actualizar botones
+  btn.parentElement.querySelectorAll('.msg-tab').forEach(tab => 
+    tab.classList.toggle('active', tab === btn)
+  );
+  
+  // Mostrar contenido correspondiente
+  const dialog = btn.closest('dialog');
+  dialog.querySelector('#currentMsg').classList.toggle('active', type === 'current');
+  dialog.querySelector('#historyMsg').classList.toggle('active', type === 'history');
+};
+
 // Dialog para mostrar/copy/enviar mensaje y guardar historial
 window.showMsgDialog = function(companyName) {
   const state = getState();
   const lead = state.leads.find(l=>l.companyName===companyName);
   if (!lead) return;
-  let msg = getSuggestedTemplate(lead);
+  
+  // Obtener historial y mensaje sugerido
+  const messageHistory = lead.messageHistory || [];
+  const msg = getSuggestedTemplate(lead);
+  
   let dlg = document.createElement('dialog');
   dlg.className = 'dlg';
+  
+  // Determinar el tipo de mensaje actual
+  const messageCount = messageHistory.length;
+  let messageType = 'Mensaje inicial';
+  if (messageCount === 1) messageType = 'Primer seguimiento';
+  if (messageCount >= 2) messageType = 'Segundo seguimiento';
+  
   dlg.innerHTML = `
-    <div class='dlg-h'>Mensaje sugerido para ${lead.industry}</div>
+    <div class='dlg-h'>
+      ${messageType} - ${lead.industry || 'Empresa'} 
+      <span class="msg-count">${messageCount} mensajes enviados</span>
+    </div>
     <div class='dlg-c'>
-      <textarea style='width:100%;height:200px;font-family:inherit;padding:8px;border:1px solid var(--muted);border-radius:4px;'>${msg}</textarea>
+      <div class="msg-tabs">
+        <button class="msg-tab active" onclick="showMsgPreview(this, 'current')">Mensaje sugerido</button>
+        <button class="msg-tab" onclick="showMsgPreview(this, 'history')">Historial (${messageCount})</button>
+      </div>
+      
+      <div id="currentMsg" class="msg-content active">
+        <textarea style='width:100%;height:200px;font-family:inherit;padding:8px;border:1px solid var(--muted);border-radius:4px;margin-bottom:8px'>${msg}</textarea>
+      </div>
+      
+      <div id="historyMsg" class="msg-content">
+        ${messageHistory.map((m, i) => `
+          <div class="history-item">
+            <div class="history-date">${new Date(m.date).toLocaleString()}</div>
+            <pre class="history-msg">${m.msg}</pre>
+          </div>
+        `).join('')}
+      </div>
     </div>
     <div class='dlg-f'>
       <button class='btn primary' id='copyMsgBtn'>✂️ Copiar</button>

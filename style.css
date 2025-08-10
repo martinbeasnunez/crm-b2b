@@ -224,6 +224,67 @@ tr:hover td {
   color: var(--acc);
   padding: 1rem 1.5rem;
   border-radius: var(--radius) var(--radius) 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.msg-count {
+  font-size: 0.9rem;
+  color: var(--sub);
+  font-weight: normal;
+}
+
+.msg-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--muted);
+  padding-bottom: 0.5rem;
+}
+
+.msg-tab {
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all var(--trans);
+}
+
+.msg-tab.active {
+  background: var(--acc);
+  color: var(--white);
+}
+
+.msg-content {
+  display: none;
+}
+
+.msg-content.active {
+  display: block;
+}
+
+.history-item {
+  background: var(--muted);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.history-date {
+  font-size: 0.8rem;
+  color: var(--sub);
+  margin-bottom: 0.5rem;
+}
+
+.history-msg {
+  white-space: pre-wrap;
+  margin: 0;
+  font-family: inherit;
+  color: var(--text);
 }
 .dlg-c {
   padding: 1.5rem;
