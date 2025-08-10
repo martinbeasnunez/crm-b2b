@@ -33,46 +33,64 @@
   <script type="module">
     import { showTab } from './js/navigation.js';
     import { initEventListeners } from './js/events.js';
+    import { loadState } from './js/common.js';
+    import { renderLeads } from './js/leads.js';
     
     // Cargar las vistas HTML
     async function loadViews() {
-      const sections = {
-        leads: document.getElementById('tab-leads'),
-        pipeline: document.getElementById('tab-pipeline'),
-        plantillas: document.getElementById('tab-plantillas'),
-        recordatorios: document.getElementById('tab-recordatorios'),
-        importar: document.getElementById('tab-importar')
-      };
-      
-      // Cargar las vistas HTML
-      const responses = await Promise.all([
-        fetch('views/leads.html'),
-        fetch('views/pipeline.html'),
-        fetch('views/templates.html'),
-        fetch('views/reminders.html'),
-        fetch('views/import.html'),
-        fetch('views/dialogs.html')
-      ]);
-      
-      const [leads, pipeline, templates, reminders, importView, dialogs] = await Promise.all(
-        responses.map(r => r.text())
-      );
-      
-      // Insertar el contenido
-      sections.leads.innerHTML = leads;
-      sections.pipeline.innerHTML = pipeline;
-      sections.plantillas.innerHTML = templates;
-      sections.recordatorios.innerHTML = reminders;
-      sections.importar.innerHTML = importView;
-      
-      // Agregar los diálogos al body
-      const dialogsContainer = document.createElement('div');
-      dialogsContainer.innerHTML = dialogs;
-      document.body.appendChild(dialogsContainer);
-      
-      // Inicializar
-      initEventListeners();
-      showTab('leads');
+      try {
+        const sections = {
+          leads: document.getElementById('tab-leads'),
+          pipeline: document.getElementById('tab-pipeline'),
+          plantillas: document.getElementById('tab-plantillas'),
+          recordatorios: document.getElementById('tab-recordatorios'),
+          importar: document.getElementById('tab-importar')
+        };
+        
+        console.log('Cargando vistas HTML...');
+        
+        // Cargar las vistas HTML
+        const responses = await Promise.all([
+          fetch('views/leads.html'),
+          fetch('views/pipeline.html'),
+          fetch('views/templates.html'),
+          fetch('views/reminders.html'),
+          fetch('views/import.html'),
+          fetch('views/dialogs.html')
+        ]);
+        
+        const [leads, pipeline, templates, reminders, importView, dialogs] = await Promise.all(
+          responses.map(r => r.text())
+        );
+        
+        console.log('Vistas cargadas, insertando contenido...');
+        
+        // Insertar el contenido
+        sections.leads.innerHTML = leads;
+        sections.pipeline.innerHTML = pipeline;
+        sections.plantillas.innerHTML = templates;
+        sections.recordatorios.innerHTML = reminders;
+        sections.importar.innerHTML = importView;
+        
+        // Agregar los diálogos al body
+        const dialogsContainer = document.createElement('div');
+        dialogsContainer.innerHTML = dialogs;
+        document.body.appendChild(dialogsContainer);
+        
+        console.log('Inicializando aplicación...');
+        
+        // Cargar estado inicial
+        loadState();
+        
+        // Inicializar eventos y UI
+        initEventListeners();
+        showTab('leads');
+        renderLeads();
+        
+        console.log('Aplicación inicializada correctamente');
+      } catch (error) {
+        console.error('Error al cargar la aplicación:', error);
+      }
     }
     
     // Cargar todo cuando el DOM esté listo
