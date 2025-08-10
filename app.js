@@ -802,6 +802,82 @@ function editReminder(id) {
   dialog.showModal();
 }
 
+// Recordatorios
+function renderReminders() {
+  const state = getState();
+  const now = new Date();
+  
+  // Agrupar recordatorios por fecha
+  const groups = {
+    today: [],
+    tomorrow: [],
+    upcoming: [],
+    past: []
+  };
+  
+  state.reminders.forEach(r => {
+    const rDate = new Date(r.date);
+    const daysDiff = Math.floor((rDate - now) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff < 0 && r.status !== 'completed') {
+      groups.past.push(r);
+    } else if (daysDiff === 0) {
+      groups.today.push(r);
+    } else if (daysDiff === 1) {
+      groups.tomorrow.push(r);
+    } else {
+      groups.upcoming.push(r);
+    }
+  });
+  
+  // Generar HTML para cada grupo
+  const container = document.getElementById('remindersContainer');
+  container.innerHTML = `
+    ${Object.entries(groups).map(([group, items]) => items.length ? `
+      <div class="reminder-group">
+        <h3>
+          ${group === 'past' ? 'Atrasados' : 
+            group === 'today' ? 'Hoy' :
+            group === 'tomorrow' ? 'Mañana' : 'Próximos'}
+          <span class="count">${items.length}</span>
+        </h3>
+        ${items.map(r => `
+          <div class="reminder-card ${r.status} ${r.priority}" onclick="editReminder(${r.id})">
+            <div class="reminder-icon">${getReminderIcon(r.type)}</div>
+            <div class="reminder-info">
+              <div class="reminder-title">${r.title}</div>
+              <div class="reminder-meta">
+                ${formatDate(r.date)}
+                ${r.lead ? `· ${r.lead}` : ''}
+              </div>
+            </div>
+            <div class="reminder-actions">
+              ${r.status !== 'completed' ? 
+                `<button class="btn icon" onclick="completeReminder(${r.id}); event.stopPropagation()">✓</button>` : 
+                ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    ` : '').join('')}
+  `;
+  
+  if (!state.reminders.length) {
+    container.innerHTML = '<div class="empty-state">No hay recordatorios</div>';
+  }
+}
+
+function completeReminder(id) {
+  const state = getState();
+  const reminder = state.reminders.find(r => r.id === id);
+  if (reminder) {
+    reminder.status = 'completed';
+    setState(state);
+    renderReminders();
+    showToast('Recordatorio completado');
+  }
+}
+
 // Inicialización
 function initializeState() {
   const state = getState();
