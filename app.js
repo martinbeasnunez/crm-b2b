@@ -1,9 +1,7 @@
 // Mini-CRM B2B - JS sin frameworks
 const STAGES = ['Nuevo','Calificado','En Conversación','Propuesta','Cerrado-Won','Cerrado-Lost'];
 const DISTRICTS = ['Miraflores','San Isidro','Barranco','Surco','La Molina','San Borja'];
-const INDUSTRIAS_ICP = ['Hotelerwindow.editLead = function(companyName) {
-  const dialog = document.getElementById('leadDialog');
-  const state = getState();,'Clínica','Salud'];
+const INDUSTRIAS_ICP = ['Hotelería','Clínica','Salud'];
 const LS_KEY = 'miniCrmB2B';
 
 // Funciones globales para el manejo de UI
