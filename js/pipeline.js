@@ -1,4 +1,4 @@
-import { getState, setState, showToast } from './common.js';
+import { getState, setState, showToast, scoreICP } from './common.js';
 
 export function renderPipeline() {
   const state = getState();
@@ -21,18 +21,22 @@ export function renderPipeline() {
   let html = '<div class="kanban">';
   Object.entries(columns).forEach(([status, items]) => {
     html += `
-      <div class="col">
-        <h3>${status} (${items.length})</h3>
-        ${items.map(lead => `
-          <div class="card" draggable="true" data-company="${lead.companyName}">
-            <div class="card-title">${lead.companyName}</div>
-            <div class="card-body">
-              <div>${lead.contactName}</div>
-              <div>${lead.industry}</div>
-              <div>${lead.district}</div>
+      <div class="kanban-column" data-status="${status}">
+        <div class="kanban-header">${status} <span class="tag">${items.length}</span></div>
+        <div class="kanban-body" data-status="${status}">
+          ${items.map(lead => `
+            <div class="kanban-card" draggable="true" data-company="${lead.companyName}">
+              <div class="card-title">${lead.companyName}</div>
+              <div class="card-contact">${lead.contactName}</div>
+              <div class="card-phone">${lead.phone || ''}</div>
+              <div class="card-meta">
+                <span class="tag">${lead.industry || ''}</span>
+                <span class="tag">${lead.district || ''}</span>
+              </div>
+              <div class="card-score">ICP: ${scoreICP(lead)}</div>
             </div>
-          </div>
-        `).join('')}
+          `).join('')}
+        </div>
       </div>
     `;
   });
@@ -44,32 +48,39 @@ export function renderPipeline() {
 export function initPipeline() {
   // Event listeners para drag & drop
   document.addEventListener('dragstart', e => {
-    const card = e.target.closest('.card');
+    const card = e.target.closest('.kanban-card');
     if (card) {
+      card.classList.add('dragging');
       e.dataTransfer.setData('text/plain', card.dataset.company);
     }
   });
 
+  document.addEventListener('dragend', e => {
+    const card = e.target.closest('.kanban-card');
+    if (card) card.classList.remove('dragging');
+  });
+
   document.addEventListener('dragover', e => {
-    const col = e.target.closest('.col');
-    if (col) {
+    const body = e.target.closest('.kanban-body');
+    if (body) {
       e.preventDefault();
     }
   });
 
   document.addEventListener('drop', e => {
-    const col = e.target.closest('.col');
-    if (col) {
+    const body = e.target.closest('.kanban-body');
+    if (body) {
       e.preventDefault();
       const company = e.dataTransfer.getData('text');
-      const newStatus = col.querySelector('h3').textContent.split(' ')[0];
+      const newStatus = body.dataset.status;
       
       const state = getState();
       const lead = state.leads.find(l => l.companyName === company);
-      if (lead) {
+      if (lead && lead.status !== newStatus) {
         lead.status = newStatus;
         setState(state);
         renderPipeline();
+        showToast(`Movido a ${newStatus}`);
       }
     }
   });
