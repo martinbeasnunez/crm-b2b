@@ -4,10 +4,43 @@ const DISTRICTS = ['Miraflores','San Isidro','Barranco','Surco','La Molina','San
 const INDUSTRIAS_ICP = ['Hotelería','Clínica','Salud'];
 const LS_KEY = 'miniCrmB2B';
 
+// Plantillas base por industria
+const DEFAULT_TEMPLATES = {
+  'Hotelería': [
+    '¡Hola {{contactName}}! 👋 En {{companyName}} podemos garantizar blancura perfecta en toallas y sábanas, con entregas puntuales y control VIP. ¿Agendamos una prueba esta semana? 🏨✨',
+    '{{contactName}}, impulsa la experiencia de tus huéspedes en {{companyName}}:\n✅ Blancura total\n✅ Entregas a tiempo\n✅ Protocolos VIP\n\n¿Coordinamos una visita? 🏨'
+  ],
+  'Clínica': [
+    '¡Hola {{contactName}}! En {{companyName}} la higiene es crítica. Ofrecemos esterilización certificada y control de calidad riguroso. ¿Te muestro cómo operamos? 🏥✨',
+    '{{contactName}}, protocolos sanitarios y servicio 24/7 para {{companyName}}. Optimiza costos sin perder calidad. ¿Conversamos? 🏥'
+  ],
+  'Residencial': [
+    'Hola {{contactName}}, en {{companyName}} podemos mejorar la rotación y cuidado de ropa de cama y toallas. Servicio confiable y precios claros. ¿Te interesa una demo? 🏠',
+    '{{contactName}}, cuidamos la ropa de cama de {{companyName}} con estándares hoteleros. Calidad y puntualidad. ¿Agendamos? 🏠'
+  ],
+  'Spa': [
+    'Hola {{contactName}} 👋, en {{companyName}} podemos mantener toallas y batas impecables con suavidad premium. ¿Coordinamos una prueba? 💆‍♀️',
+    'Para {{companyName}}: lavado delicado, perfumes neutros y entregas puntuales. ¿Te va una demo? 💆'
+  ],
+  'Airbnb': [
+    'Hola {{contactName}}, escalamos la operación de lavandería para {{companyName}} con retiros y entregas sincronizados por reserva. ¿Te cuento? 🏡',
+    'Check-in sin estrés para {{companyName}}: ropa impecable, inventario controlado y tarifa plana. ¿Agendamos? 🏡'
+  ],
+  'default': [
+    'Hola {{contactName}}, ¿cómo podemos ayudar a {{companyName}} hoy?\n✅ Servicio personalizado\n✅ Atención inmediata\n\n¿Coordinamos una llamada? 🤝',
+    '{{contactName}}, optimiza las operaciones de {{companyName}}:\n✅ Servicio confiable\n✅ Precios transparentes\n✅ Calidad garantizada\n\n¿Coordinamos una visita? 🚀'
+  ]
+};
+
 // Estado y persistencia
 export function getState() {
-  let state = localStorage.getItem(LS_KEY);
-  if (state) return JSON.parse(state);
+  let raw = localStorage.getItem(LS_KEY);
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    normalizeTemplates(parsed);
+    localStorage.setItem(LS_KEY, JSON.stringify(parsed));
+    return parsed;
+  }
   
   const initialState = {
     leads: [
@@ -15,32 +48,7 @@ export function getState() {
       {companyName:'Clínica Providencia',contactName:'Admisión',phone:'+51988888888',industry:'Clínica',size:80,district:'San Borja',email:'',notes:'',source:'Web',status:'Calificado'},
       {companyName:'Casa Convivencia',contactName:'María',phone:'+51977777777',industry:'Residencial',size:30,district:'Miraflores',email:'',notes:'',source:'Web',status:'En Conversación'}
     ],
-    templates: {
-      'Hotelería': [
-        '¡Hola {{contactName}}! 👋 En {{companyName}} podemos garantizar blancura perfecta en toallas y sábanas, con entregas puntuales y control VIP. ¿Agendamos una prueba esta semana? 🏨✨',
-        '{{contactName}}, impulsa la experiencia de tus huéspedes en {{companyName}}:\n✅ Blancura total\n✅ Entregas a tiempo\n✅ Protocolos VIP\n\n¿Coordinamos una visita? 🏨'
-      ],
-      'Clínica': [
-        '¡Hola {{contactName}}! En {{companyName}} la higiene es crítica. Ofrecemos esterilización certificada y control de calidad riguroso. ¿Te muestro cómo operamos? 🏥✨',
-        '{{contactName}}, protocolos sanitarios y servicio 24/7 para {{companyName}}. Optimiza costos sin perder calidad. ¿Conversamos? 🏥'
-      ],
-      'Residencial': [
-        'Hola {{contactName}}, en {{companyName}} podemos mejorar la rotación y cuidado de ropa de cama y toallas. Servicio confiable y precios claros. ¿Te interesa una demo? 🏠',
-        '{{contactName}}, cuidamos la ropa de cama de {{companyName}} con estándares hoteleros. Calidad y puntualidad. ¿Agendamos? �'
-      ],
-      'Spa': [
-        'Hola {{contactName}} 👋, en {{companyName}} podemos mantener toallas y batas impecables con suavidad premium. ¿Coordinamos una prueba? 💆‍♀️',
-        'Para {{companyName}}: lavado delicado, perfumes neutros y entregas puntuales. ¿Te va una demo? 💆'
-      ],
-      'Airbnb': [
-        'Hola {{contactName}}, escalamos la operación de lavandería para {{companyName}} con retiros y entregas sincronizados por reserva. ¿Te cuento? 🏡',
-        'Check-in sin estrés para {{companyName}}: ropa impecable, inventario controlado y tarifa plana. ¿Agendamos? 🏡'
-      ],
-      'default': [
-        'Hola {{contactName}}, ¿cómo podemos ayudar a {{companyName}} hoy?\n✅ Servicio personalizado\n✅ Atención inmediata\n\n¿Coordinamos una llamada? 🤝',
-        '{{contactName}}, optimiza las operaciones de {{companyName}}:\n✅ Servicio confiable\n✅ Precios transparentes\n✅ Calidad garantizada\n\n¿Coordinamos una visita? 🚀'
-      ]
-    },
+    templates: DEFAULT_TEMPLATES,
     reminders: []
   };
   
@@ -81,3 +89,20 @@ export function scoreICP(lead) {
 
 // Exportar constantes
 export { STAGES, DISTRICTS, INDUSTRIAS_ICP };
+
+// Helpers de normalización
+function normalizeTemplates(state) {
+  if (!state.templates) state.templates = {};
+  // asegurar 'default'
+  if (!Array.isArray(state.templates.default) || state.templates.default.length === 0) {
+    state.templates.default = DEFAULT_TEMPLATES.default.slice();
+  }
+  // rellenar industrias conocidas si faltan
+  Object.keys(DEFAULT_TEMPLATES).forEach(key => {
+    if (key === 'default') return;
+    if (!Array.isArray(state.templates[key]) || state.templates[key].length === 0) {
+      // no sobreescribe si ya existe contenido del usuario
+      state.templates[key] = DEFAULT_TEMPLATES[key].slice();
+    }
+  });
+}

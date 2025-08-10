@@ -12,8 +12,9 @@ export function showMsgDialog(companyName) {
     return;
   }
 
-  // Obtener las plantillas para la industria del lead
-  const industryTemplates = state.templates[lead.industry] || state.templates.default;
+  // Obtener plantillas por industria (normalizando clave)
+  const key = (lead.industry || 'default').trim();
+  const industryTemplates = state.templates[key] || state.templates.default || [];
   
   if (!industryTemplates || !industryTemplates.length) {
     console.error('No hay plantillas para la industria:', lead.industry);
@@ -38,7 +39,7 @@ export function showMsgDialog(companyName) {
   
   // Función para actualizar preview
   function updateMessagePreview() {
-    const currentTemplates = state.templates[lead.industry] || state.templates.default;
+    const currentTemplates = state.templates[key] || state.templates.default || [];
     const selectedTemplate = currentTemplates[select.value];
     let msg = selectedTemplate;
     Object.keys(lead).forEach(key => {
