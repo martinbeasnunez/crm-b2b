@@ -12,8 +12,8 @@ export function showMsgDialog(companyName) {
     return;
   }
 
-  // Obtener plantillas por industria (normalizando clave)
-  const key = (lead.industry || 'default').trim();
+  // Obtener plantillas por industria con clave normalizada
+  const key = findIndustryKey(state.templates, lead.industry);
   const industryTemplates = state.templates[key] || state.templates.default || [];
   
   if (!industryTemplates || !industryTemplates.length) {
@@ -70,3 +70,22 @@ export function showMsgDialog(companyName) {
 
 // Exponer función globalmente
 window.showMsgDialog = showMsgDialog;
+
+// Utilidades internas
+function normalizeKey(s) {
+  return (s || 'default')
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function findIndustryKey(templates, industry) {
+  const wanted = normalizeKey(industry);
+  const keys = Object.keys(templates || {});
+  // match exact normalizado
+  for (const k of keys) {
+    if (normalizeKey(k) === wanted) return k;
+  }
+  return 'default';
+}
