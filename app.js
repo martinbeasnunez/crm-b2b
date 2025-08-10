@@ -15,10 +15,28 @@ function getState() {
       {companyName:'Clínica Providencia',contactName:'Admisión',phone:'+51988888888',industry:'Clínica',size:80,district:'San Borja',email:'',notes:'',source:'Web',status:'Calificado'},
       {companyName:'Casa Convivencia',contactName:'María',phone:'+51977777777',industry:'Residencial',size:30,district:'Miraflores',email:'',notes:'',source:'Web',status:'En Conversación'}
     ],
-    templates: [
-      'Hola {{contactName}}, te escribo de GetLavado. Me gustaría conversar sobre nuestro servicio de lavandería para {{companyName}}.',
-      'Estimado/a {{contactName}}, ¿podemos coordinar una visita a {{companyName}} para presentar nuestro servicio?'
-    ],
+    templates: {
+      'Hotelería': [
+        '¡Hola {{contactName}}! 👋 GetLavado es el servicio VIP que {{companyName}} necesita. Blancura inmaculada garantizada en toallas y sábanas + uniformes impecables. 864 hoteles ya confían en nosotros. ¿Te gustaría una prueba GRATIS esta semana? 🏨✨',
+        '{{contactName}}, tu hotel merece un servicio 5⭐. En GetLavado cuidamos cada detalle: \n✅ Blancura perfecta\n✅ Entrega puntual\n✅ Protocolos VIP\n\nTus huéspedes notarán la diferencia. ¿Coordinamos una visita a {{companyName}}? 🏨'
+      ],
+      'Clínica': [
+        '¡Hola {{contactName}}! GetLavado garantiza la máxima higiene que {{companyName}} requiere. Protocolos certificados de esterilización + control de calidad riguroso. 8 años cuidando clínicas líderes. ¿Te gustaría conocer nuestro servicio? 🏥✨',
+        '{{contactName}}, la higiene es vital en {{companyName}}. Ofrecemos:\n✅ Esterilización certificada\n✅ Protocolos sanitarios\n✅ Servicio 24/7\n\nMuchas clínicas ya optimizaron sus costos con nosotros. ¿Conversamos? 🏥'
+      ],
+      'Spa': [
+        '¡Hola {{contactName}}! En GetLavado entendemos que {{companyName}} necesita toallas suaves y perfectamente blancas. Servicio 24h para que nunca te falte stock. ¿Te gustaría una prueba GRATIS esta semana? 💆‍♀️✨',
+        '{{contactName}}, dale a tus clientes la experiencia premium que merecen:\n✅ Toallas ultra suaves\n✅ Blancura perfecta\n✅ Entrega 24h\n\n¿Coordinamos una visita a {{companyName}}? 💆‍♀️'
+      ],
+      'Airbnb': [
+        '¡Hola {{contactName}}! GetLavado se adapta al ritmo de {{companyName}}. Servicio flexible 24/7 + calidad hotelera en cada entrega. ¿Te gustaría una prueba GRATIS en tu próximo cambio de huéspedes? 🏠✨',
+        '{{contactName}}, maximiza tus reseñas en {{companyName}}:\n✅ Calidad hotelera\n✅ Servicio flexible\n✅ Entregas puntuales\n\nTus huéspedes merecen lo mejor. ¿Conversamos? 🏠'
+      ],
+      'default': [
+        '¡Hola {{contactName}}! GetLavado es líder en lavandería industrial: 864 empresas confían en nosotros. ¿Te gustaría una prueba GRATIS para {{companyName}} esta semana? Precios transparentes y servicio premium garantizado ⭐',
+        '{{contactName}}, optimiza las operaciones de {{companyName}}:\n✅ Servicio confiable\n✅ Precios transparentes\n✅ Calidad garantizada\n\n¿Coordinamos una visita? 🚀'
+      ]
+    },
     reminders: [
       {
         id: 1,
@@ -655,7 +673,8 @@ function deleteLead() {
 function getSuggestedTemplate(lead) {
   if (!lead) return '';
   const state = getState();
-  return state.templates[0] || '';
+  const industryTemplates = state.templates[lead.industry] || state.templates.default;
+  return industryTemplates[0] || '';
 }
 
 function showMsgDialog(companyName) {
@@ -667,13 +686,15 @@ function showMsgDialog(companyName) {
 
   // Llenar plantillas
   const select = document.getElementById('dlgMsgTemplate');
-  select.innerHTML = state.templates.map((tpl, i) => 
+  const industryTemplates = state.templates[lead.industry] || state.templates.default;
+  select.innerHTML = industryTemplates.map((tpl, i) => 
     `<option value="${i}">${tpl.substring(0, 50)}...</option>`
   ).join('');
   
   // Función para actualizar preview
   window.updateMessagePreview = () => {
-    const tpl = state.templates[select.value];
+    const industryTemplates = state.templates[lead.industry] || state.templates.default;
+    const tpl = industryTemplates[select.value];
     let msg = tpl;
     Object.keys(lead).forEach(key => {
       msg = msg.replace(new RegExp(`{{${key}}}`, 'g'), lead[key]);
