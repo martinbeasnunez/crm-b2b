@@ -1,1 +1,30 @@
-body{background:#fff;color:#111;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,sans-serif;line-height:1.5}
+/* Importar Inter y Roboto desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto:wght@400;700&display=swap');
+
+body {
+  background: #f5f9f9;
+  color: #111;
+  font-family: 'Inter', 'Roboto', Arial, system-ui, -apple-system, Segoe UI, Helvetica, sans-serif;
+  line-height: 1.5;
+}
+
+/* Estilos para botones */
+button,
+.btn {
+  background-color: #0db4b9;
+  color: #fff;
+  font-family: inherit;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6em 1.2em;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(13, 180, 185, 0.08);
+}
+
+button:hover,
+.btn:hover {
+  background-color: #09969a;
+  box-shadow: 0 4px 16px rgba(13, 180, 185, 0.16);
+}
