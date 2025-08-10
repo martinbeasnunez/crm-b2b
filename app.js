@@ -4,72 +4,6 @@ const DISTRICTS = ['Miraflores','San Isidro','Barranco','Surco','La Molina','San
 const INDUSTRIAS_ICP = ['Hotelería','Clínica','Salud'];
 const LS_KEY = 'miniCrmB2B';
 
-// Funciones globales para el manejo de UI
-window.editLead = function(companyName) {
-  const dialog = document.getElementById('leadDialog');
-  const state = getState();
-  const lead = companyName ? state.leads.find(l => l.companyName === companyName) : {
-    companyName: '',
-    contactName: '',
-    phone: '',
-    industry: '',
-    district: '',
-    size: '',
-    email: '',
-    notes: '',
-    source: '',
-    status: 'Nuevo'
-  };
-
-  // Llenar el formulario
-  document.getElementById('dlgCompany').value = lead.companyName;
-  document.getElementById('dlgContact').value = lead.contactName;
-  document.getElementById('dlgPhone').value = lead.phone;
-  document.getElementById('dlgIndustry').value = lead.industry;
-  document.getElementById('dlgDistrict').value = lead.district;
-  document.getElementById('dlgSize').value = lead.size;
-  document.getElementById('dlgEmail').value = lead.email;
-  document.getElementById('dlgNotes').value = lead.notes;
-  document.getElementById('dlgSource').value = lead.source;
-  document.getElementById('dlgStatus').value = lead.status;
-
-  // Manejar el envío del formulario
-  dialog.onsubmit = (e) => {
-    e.preventDefault();
-    const newLead = {
-      companyName: document.getElementById('dlgCompany').value,
-      contactName: document.getElementById('dlgContact').value,
-      phone: document.getElementById('dlgPhone').value,
-      industry: document.getElementById('dlgIndustry').value,
-      district: document.getElementById('dlgDistrict').value,
-      size: document.getElementById('dlgSize').value,
-      email: document.getElementById('dlgEmail').value,
-      notes: document.getElementById('dlgNotes').value,
-      source: document.getElementById('dlgSource').value,
-      status: document.getElementById('dlgStatus').value
-    };
-
-    const state = getState();
-    const index = state.leads.findIndex(l => l.companyName === companyName);
-    
-    if (index >= 0) {
-      state.leads[index] = newLead;
-    } else {
-      state.leads.push(newLead);
-    }
-    
-    setState(state);
-    renderLeads();
-    dialog.close();
-    showToast(companyName ? 'Lead actualizado' : 'Lead creado');
-  };
-
-  // Mostrar/ocultar botón eliminar
-  document.getElementById('dlgDelete').style.display = companyName ? 'block' : 'none';
-  
-  dialog.showModal();
-};
-
 // Estado y persistencia
 function getState() {
   let state = localStorage.getItem(LS_KEY);
@@ -90,16 +24,8 @@ function getState() {
         '¡Hola {{contactName}}! GetLavado garantiza la máxima higiene que {{companyName}} requiere. Protocolos certificados de esterilización + control de calidad riguroso. 8 años cuidando clínicas líderes. ¿Te gustaría conocer nuestro servicio? 🏥✨',
         '{{contactName}}, la higiene es vital en {{companyName}}. Ofrecemos:\n✅ Esterilización certificada\n✅ Protocolos sanitarios\n✅ Servicio 24/7\n\nMuchas clínicas ya optimizaron sus costos con nosotros. ¿Conversamos? 🏥'
       ],
-      'Spa': [
-        '¡Hola {{contactName}}! En GetLavado entendemos que {{companyName}} necesita toallas suaves y perfectamente blancas. Servicio 24h para que nunca te falte stock. ¿Te gustaría una prueba GRATIS esta semana? 💆‍♀️✨',
-        '{{contactName}}, dale a tus clientes la experiencia premium que merecen:\n✅ Toallas ultra suaves\n✅ Blancura perfecta\n✅ Entrega 24h\n\n¿Coordinamos una visita a {{companyName}}? 💆‍♀️'
-      ],
-      'Airbnb': [
-        '¡Hola {{contactName}}! GetLavado se adapta al ritmo de {{companyName}}. Servicio flexible 24/7 + calidad hotelera en cada entrega. ¿Te gustaría una prueba GRATIS en tu próximo cambio de huéspedes? 🏠✨',
-        '{{contactName}}, maximiza tus reseñas en {{companyName}}:\n✅ Calidad hotelera\n✅ Servicio flexible\n✅ Entregas puntuales\n\nTus huéspedes merecen lo mejor. ¿Conversamos? 🏠'
-      ],
       'default': [
-        '¡Hola {{contactName}}! GetLavado es líder en lavandería industrial: 864 empresas confían en nosotros. ¿Te gustaría una prueba GRATIS para {{companyName}} esta semana? Precios transparentes y servicio premium garantizado ⭐',
+        '¡Hola {{contactName}}! 👋 GetLavado es líder en lavandería industrial: 864 empresas confían en nosotros. ¿Te gustaría una prueba GRATIS para {{companyName}} esta semana? Precios transparentes y servicio premium garantizado ⭐',
         '{{contactName}}, optimiza las operaciones de {{companyName}}:\n✅ Servicio confiable\n✅ Precios transparentes\n✅ Calidad garantizada\n\n¿Coordinamos una visita? 🚀'
       ]
     },
@@ -164,7 +90,8 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-function showTab(tab) {
+// Exponer funciones globalmente
+window.showTab = function(tab) {
   document.querySelectorAll('.tab-btn').forEach(btn => 
     btn.classList.toggle('active', btn.dataset.tab === tab)
   );
@@ -175,95 +102,22 @@ function showTab(tab) {
   // Renderizar contenido según la pestaña
   switch(tab) {
     case 'leads':
-      renderLeads();
+      window.renderLeads();
       break;
     case 'pipeline':
-      renderKanban();
+      window.renderKanban();
       break;
     case 'plantillas':
-      renderTemplates();
+      window.renderTemplates();
       break;
     case 'recordatorios':
-      renderReminders();
+      window.renderReminders();
       break;
   }
-}
-
-// Pipeline (Kanban)
-function renderKanban() {
-  const state = getState();
-  const leads = state.leads;
-  
-  const html = `
-    <div class="kanban">
-      ${STAGES.map(stage => `
-        <div class="kanban-column">
-          <div class="kanban-header">${stage}</div>
-          <div class="kanban-body" data-stage="${stage}" ondragover="handleDragOver(event)" ondrop="handleDrop(event, '${stage}')">
-            ${leads.filter(l => l.status === stage).map(lead => `
-              <div class="kanban-card" 
-                draggable="true" 
-                ondragstart="handleDragStart(event, '${lead.companyName}')"
-                ondragend="handleDragEnd(event)"
-                onclick="handleCardClick(event, '${lead.companyName}')">
-                <div class="card-title">${lead.companyName}</div>
-                <div class="card-contact">${lead.contactName}</div>
-                ${lead.phone ? `<div class="card-phone">📱 ${lead.phone}</div>` : ''}
-                <div class="card-meta">
-                  ${lead.industry ? `<span class="tag">${lead.industry}</span>` : ''}
-                  ${lead.district ? `<span class="tag">${lead.district}</span>` : ''}
-                </div>
-                <div class="card-score">ICP: ${scoreICP(lead)}</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-  
-  document.getElementById('kanbanWrap').innerHTML = html;
-}
-
-// Funciones de Drag & Drop para Kanban
-function handleDragStart(e, companyName) {
-  e.dataTransfer.setData('text/plain', companyName);
-  e.target.classList.add('dragging');
-}
-
-function handleDragEnd(e) {
-  e.target.classList.remove('dragging');
-}
-
-function handleDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-}
-
-function handleDrop(e, newStatus) {
-  e.preventDefault();
-  const companyName = e.dataTransfer.getData('text/plain');
-  
-  const state = getState();
-  const lead = state.leads.find(l => l.companyName === companyName);
-  
-  if (lead && lead.status !== newStatus) {
-    lead.status = newStatus;
-    setState(state);
-    renderKanban();
-    showToast(`${lead.companyName} movido a ${newStatus}`);
-  }
-}
-
-function handleCardClick(e, companyName) {
-  // Si no estamos arrastrando, editamos el lead
-  if (!e.target.classList.contains('dragging')) {
-    editLead(companyName);
-  }
-  }
+};
 
 // Gestión de Leads
-function renderLeads() {
+window.renderLeads = function() {
   const state = getState();
   let leads = state.leads.map(l => ({...l, icpScore: scoreICP(l)}));
   const q = document.getElementById('leadSearch').value.toLowerCase();
@@ -302,12 +156,12 @@ function renderLeads() {
             <td>${l.icpScore}</td>
             <td>${l.status} ${l.lastMsg ? '💬' : ''}</td>
             <td>
-              <button class="btn primary" onclick='showMsgDialog(${JSON.stringify(l.companyName)})'>
+              <button class='btn primary' onclick='window.showMsgDialog(${JSON.stringify(l.companyName)})'>
                 💬 Mensaje
               </button>
             </td>
             <td>
-              <button class="btn ghost" onclick='editLead(${JSON.stringify(l.companyName)})'>
+              <button class="btn ghost" onclick='window.editLead(${JSON.stringify(l.companyName)})'>
                 Editar
               </button>
             </td>
@@ -318,12 +172,12 @@ function renderLeads() {
   `;
   
   document.getElementById('leadsTableWrap').innerHTML = html;
-}
+};
 
-function editLead(companyName = '') {
+window.editLead = function(companyName) {
   const dialog = document.getElementById('leadDialog');
   const state = getState();
-  let lead = state.leads.find(l => l.companyName === companyName) || {
+  const lead = companyName ? state.leads.find(l => l.companyName === companyName) : {
     companyName: '',
     contactName: '',
     phone: '',
@@ -336,7 +190,7 @@ function editLead(companyName = '') {
     status: 'Nuevo'
   };
 
-  // Llenar formulario
+  // Llenar el formulario
   document.getElementById('dlgCompany').value = lead.companyName;
   document.getElementById('dlgContact').value = lead.contactName;
   document.getElementById('dlgPhone').value = lead.phone;
@@ -377,381 +231,33 @@ function editLead(companyName = '') {
     }
     
     setState(state);
-    renderLeads();
+    window.renderLeads();
     dialog.close();
     showToast(companyName ? 'Lead actualizado' : 'Lead creado');
   };
 
   dialog.showModal();
-}
-
-function deleteLead() {
-  const companyName = document.getElementById('dlgCompany').value;
-  if (!companyName) return;
-  
-  if (confirm(`¿Estás seguro de eliminar el lead ${companyName}?`)) {
-    const state = getState();
-    state.leads = state.leads.filter(l => l.companyName !== companyName);
-    setState(state);
-    renderLeads();
-    document.getElementById('leadDialog').close();
-    showToast('Lead eliminado');
-  }
-}
-
-function showMsgDialog(companyName) {
-  const dialog = document.getElementById('msgDialog');
-  const state = getState();
-  const lead = state.leads.find(l => l.companyName === companyName);
-  
-  if (!lead) return;
-
-  // Llenar plantillas
-  const select = document.getElementById('dlgMsgTemplate');
-  select.innerHTML = state.templates.map((tpl, i) => 
-    `<option value="${i}">${tpl.substring(0, 50)}...</option>`
-  ).join('');
-  
-  // Preview del mensaje
-  window.updateMessagePreview = () => {
-    const tpl = state.templates[select.value];
-    let msg = tpl;
-    Object.keys(lead).forEach(key => {
-      msg = msg.replace(new RegExp(`{{${key}}}`, 'g'), lead[key]);
-    });
-    document.getElementById('dlgMsgText').value = msg;
-  };
-  
-  updateMessagePreview();
-  
-  // Manejar envío
-  dialog.onsubmit = (e) => {
-    e.preventDefault();
-    lead.lastMsg = document.getElementById('dlgMsgText').value;
-    setState(state);
-    renderLeads();
-    dialog.close();
-    showToast('Mensaje enviado');
-  };
-  
-  // Botón cancelar
-  document.getElementById('dlgMsgCancel').onclick = () => dialog.close();
-  
-  dialog.showModal();
-}
-
-// Recordatorios
-function renderReminders() {
-  const state = getState();
-  const now = new Date();
-  const today = now.toDateString();
-  const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toDateString();
-  
-  // HTML del encabezado con botón nuevo
-  const headerHtml = `
-    <div class="reminders-header">
-      <h2>Recordatorios</h2>
-      <button class="btn primary" onclick="showNewReminderDialog()">
-        ➕ Nuevo Recordatorio
-      </button>
-    </div>
-  `;
-  
-  // Agrupar recordatorios por fecha
-  const groups = {
-    today: [],
-    week: [],
-    future: [],
-    completed: []
-  };
-  
-  state.reminders.forEach(rem => {
-    const remDate = new Date(rem.date);
-    if (rem.status === 'completed') {
-      groups.completed.push(rem);
-    } else if (remDate.toDateString() === today) {
-      groups.today.push(rem);
-    } else if (remDate.toDateString() <= nextWeek) {
-      groups.week.push(rem);
-    } else {
-      groups.future.push(rem);
-    }
-  });
-
-  // Render HTML
-  const html = `
-    <div class="reminders-header">
-      <h2>Recordatorios</h2>
-      <div class="reminder-actions">
-        <button class="btn primary" onclick="showNewReminderDialog()">
-          ➕ Nuevo recordatorio
-        </button>
-        <select id="reminderFilter" onchange="filterReminders(this.value)">
-          <option value="all">Todos</option>
-          <option value="call">Llamadas</option>
-          <option value="meeting">Reuniones</option>
-          <option value="email">Emails</option>
-          <option value="other">Otros</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="reminders-grid">
-      <div class="reminders-list">
-        ${renderReminderGroup('Hoy', groups.today)}
-        ${renderReminderGroup('Esta semana', groups.week)}
-        ${renderReminderGroup('Próximos', groups.future)}
-        ${renderReminderGroup('Completados', groups.completed)}
-      </div>
-    </div>`;
-    
-  document.getElementById('tab-recordatorios').innerHTML = html;
-}
-
-function renderReminderGroup(title, reminders) {
-  if (!reminders.length) return '';
-  
-  return `
-    <div class="reminder-group">
-      <h3>${title}</h3>
-      <div class="reminder-cards">
-        ${reminders.map(rem => `
-          <div class="reminder-card ${rem.priority}" onclick="editReminder(${rem.id})">
-            <div class="reminder-header">
-              <span class="reminder-icon">${getReminderIcon(rem.type)}</span>
-              <span class="reminder-time">${formatDate(rem.date)}</span>
-            </div>
-            <div class="reminder-title">${rem.title}</div>
-            ${rem.lead ? `<div class="reminder-lead">📍 ${rem.lead}</div>` : ''}
-            ${rem.notes ? `<div class="reminder-notes">${rem.notes}</div>` : ''}
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
-  
-  return `
-    <div class="reminder-group">
-      <h3>${title} <span class="count">${reminders.length}</span></h3>
-      <div class="reminder-items">
-        ${reminders.map(rem => `
-          <div class="reminder-card ${rem.status} ${rem.priority}" onclick="showReminderDetails(${rem.id})">
-            <div class="reminder-icon">
-              ${getReminderIcon(rem.type)}
-            </div>
-            <div class="reminder-info">
-              <div class="reminder-title">${rem.title}</div>
-              <div class="reminder-meta">
-                <span class="time">${formatDate(rem.date)}</span>
-                ${rem.lead ? `<span class="lead">📋 ${rem.lead}</span>` : ''}
-              </div>
-            </div>
-            <div class="reminder-actions">
-              ${rem.status !== 'completed' ? 
-                `<button class="btn ok" onclick="completeReminder(${rem.id}, event)">✓</button>` : ''}
-              <button class="btn ghost" onclick="editReminder(${rem.id}, event)">✎</button>
-              <button class="btn danger" onclick="deleteReminder(${rem.id}, event)">×</button>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
-}
-
-function getReminderIcon(type) {
-  const icons = {
-    call: '📞',
-    meeting: '👥',
-    email: '✉️',
-    other: '📌'
-  };
-  return icons[type] || icons.other;
-}
-
-function formatDate(dateStr) {
-  const date = new Date(dateStr);
-  return date.toLocaleString('es-ES', { 
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-// Plantillas
-function renderTemplates() {
-  const state = getState();
-  const html = `
-    <div class="templates-list">
-      ${state.templates.map((tpl, i) => `
-        <div class="template-item">
-          <div class="template-text">${tpl}</div>
-          <button class="btn danger" onclick="deleteTemplate(${i})">Eliminar</button>
-        </div>
-      `).join('')}
-    </div>
-  `;
-  document.getElementById('tplList').innerHTML = html;
-}
-
-function deleteTemplate(index) {
-  if (confirm('¿Estás seguro de eliminar esta plantilla?')) {
-    const state = getState();
-    state.templates.splice(index, 1);
-    setState(state);
-    renderTemplates();
-    showToast('Plantilla eliminada');
-  }
-}
-
-// Inicialización
-function initializeEventListeners() {
-  // Tab navigation
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.onclick = () => showTab(btn.dataset.tab);
-  });
-
-  // Lead management
-  document.getElementById('addLeadBtn').onclick = () => editLead();
-  document.getElementById('leadSearch').oninput = renderLeads;
-  
-  // Lead dialog
-  document.getElementById('dlgCancel').onclick = () => document.getElementById('leadDialog').close();
-  document.getElementById('dlgDelete').onclick = deleteLead;
-  
-  // Reminders
-  const remDialog = document.getElementById('reminderDialog');
-  document.getElementById('dlgRemCancel').onclick = () => remDialog.close();
-  document.getElementById('dlgRemDelete').onclick = deleteReminder;
-  
-  // Templates
-  const tplInput = document.getElementById('tplInput');
-  document.getElementById('addTplBtn').onclick = () => {
-    const tpl = tplInput.value.trim();
-    if (!tpl) return;
-    
-    const state = getState();
-    state.templates.push(tpl);
-    setState(state);
-    tplInput.value = '';
-    renderTemplates();
-    showToast('Plantilla agregada');
-  };
-}
-
-// Cargar estado inicial
-document.addEventListener('DOMContentLoaded', () => {
-  initializeEventListeners();
-  showTab('leads');
-});
-
-// Toast notifications
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-// Manejo de Leads
-function editLead(companyName = '') {
-  const dialog = document.getElementById('leadDialog');
-  const state = getState();
-  let lead = state.leads.find(l => l.companyName === companyName) || {
-    companyName: '',
-    contactName: '',
-    phone: '',
-    industry: '',
-    district: '',
-    size: '',
-    email: '',
-    notes: '',
-    source: '',
-    status: 'Nuevo'
-  };
-
-  // Llenar el formulario
-  document.getElementById('dlgCompany').value = lead.companyName;
-  document.getElementById('dlgContact').value = lead.contactName;
-  document.getElementById('dlgPhone').value = lead.phone;
-  document.getElementById('dlgIndustry').value = lead.industry;
-  document.getElementById('dlgDistrict').value = lead.district;
-  document.getElementById('dlgSize').value = lead.size;
-  document.getElementById('dlgEmail').value = lead.email;
-  document.getElementById('dlgNotes').value = lead.notes;
-  document.getElementById('dlgSource').value = lead.source;
-  document.getElementById('dlgStatus').value = lead.status;
-
-  // Manejar el envío del formulario
-  dialog.onsubmit = (e) => {
-    e.preventDefault();
-    const newLead = {
-      companyName: document.getElementById('dlgCompany').value,
-      contactName: document.getElementById('dlgContact').value,
-      phone: document.getElementById('dlgPhone').value,
-      industry: document.getElementById('dlgIndustry').value,
-      district: document.getElementById('dlgDistrict').value,
-      size: document.getElementById('dlgSize').value,
-      email: document.getElementById('dlgEmail').value,
-      notes: document.getElementById('dlgNotes').value,
-      source: document.getElementById('dlgSource').value,
-      status: document.getElementById('dlgStatus').value
-    };
-
-    const state = getState();
-    const index = state.leads.findIndex(l => l.companyName === companyName);
-    
-    if (index >= 0) {
-      state.leads[index] = newLead;
-    } else {
-      state.leads.push(newLead);
-    }
-    
-    setState(state);
-    renderLeads();
-    dialog.close();
-    showToast(companyName ? 'Lead actualizado' : 'Lead creado');
-  };
-
-  // Mostrar/ocultar botón eliminar
-  document.getElementById('dlgDelete').style.display = companyName ? 'block' : 'none';
-  
-  dialog.showModal();
-}
-
-function deleteLead() {
-  const companyName = document.getElementById('dlgCompany').value;
-  if (!companyName) return;
-  
-  if (confirm(`¿Estás seguro de eliminar el lead ${companyName}?`)) {
-    const state = getState();
-    state.leads = state.leads.filter(l => l.companyName !== companyName);
-    setState(state);
-    renderLeads();
-    document.getElementById('leadDialog').close();
-    showToast('Lead eliminado');
-  }
-}
-
-// Templates y Mensajes
-window.getSuggestedTemplate = function(lead) {
-  if (!lead) return '';
-  const state = getState();
-  const industryTemplates = state.templates[lead.industry] || state.templates.default;
-  return industryTemplates[0] || '';
 };
 
 window.showMsgDialog = function(companyName) {
+  console.log('showMsgDialog called with:', companyName);
   const dialog = document.getElementById('msgDialog');
   const state = getState();
   const lead = state.leads.find(l => l.companyName === companyName);
   
-  if (!lead) return;
+  if (!lead) {
+    console.error('Lead no encontrado:', companyName);
+    return;
+  }
 
   // Obtener las plantillas para la industria del lead
   const industryTemplates = state.templates[lead.industry] || state.templates.default;
+  
+  if (!industryTemplates || !industryTemplates.length) {
+    console.error('No hay plantillas para la industria:', lead.industry);
+    showToast('No hay plantillas disponibles para esta industria');
+    return;
+  }
   
   // Llenar el selector de plantillas
   const select = document.getElementById('dlgMsgTemplate');
@@ -771,235 +277,46 @@ window.showMsgDialog = function(companyName) {
   };
   
   // Preview inicial
-  updateMessagePreview();
+  window.updateMessagePreview();
   
   // Manejar envío
   dialog.onsubmit = (e) => {
     e.preventDefault();
     const msg = document.getElementById('dlgMsgText').value;
-    // Aquí iría la lógica de envío real
+    lead.lastMsg = msg;
+    setState(state);
     dialog.close();
     showToast('Mensaje enviado');
+    window.renderLeads();
   };
   
   // Botón cancelar
   document.getElementById('dlgMsgCancel').onclick = () => dialog.close();
   
   dialog.showModal();
-}
-
-function showNewReminderDialog() {
-  const dialog = document.getElementById('reminderDialog');
-  const now = new Date();
-  now.setMinutes(now.getMinutes() + 30); // Default a 30 min desde ahora
-  
-  // Reset form
-  document.getElementById('dlgRemTitle').value = '';
-  document.getElementById('dlgRemDate').value = now.toISOString().slice(0, 16);
-  document.getElementById('dlgRemType').value = 'call';
-  document.getElementById('dlgRemPriority').value = 'medium';
-  document.getElementById('dlgRemNotes').value = '';
-  
-  // Llenar select de leads
-  const state = getState();
-  const leadSelect = document.getElementById('dlgRemLead');
-  leadSelect.innerHTML = '<option value="">Sin lead</option>' + 
-    state.leads.map(l => `<option value="${l.companyName}">${l.companyName}</option>`).join('');
-  
-  // Ocultar botón eliminar en nuevo recordatorio
-  document.getElementById('dlgRemDelete').style.display = 'none';
-  
-  // Manejar envío
-  dialog.onsubmit = (e) => {
-    e.preventDefault();
-    const reminder = {
-      id: Date.now(),
-      title: document.getElementById('dlgRemTitle').value,
-      date: document.getElementById('dlgRemDate').value,
-      type: document.getElementById('dlgRemType').value,
-      lead: document.getElementById('dlgRemLead').value,
-      priority: document.getElementById('dlgRemPriority').value,
-      notes: document.getElementById('dlgRemNotes').value,
-      status: 'pending'
-    };
-    
-    const state = getState();
-    state.reminders.push(reminder);
-    setState(state);
-    renderReminders();
-    dialog.close();
-    showToast('Recordatorio creado');
-  };
-  
-  dialog.showModal();
-}
-
-// Funciones adicionales para recordatorios
-function deleteReminder() {
-  const dialog = document.getElementById('reminderDialog');
-  const remId = dialog.dataset.reminderId;
-  
-  if (!remId) return;
-  
-  if (confirm('¿Estás seguro de eliminar este recordatorio?')) {
-    const state = getState();
-    state.reminders = state.reminders.filter(r => r.id !== Number(remId));
-    setState(state);
-    renderReminders();
-    dialog.close();
-    showToast('Recordatorio eliminado');
-  }
-}
-
-function editReminder(id) {
-  const dialog = document.getElementById('reminderDialog');
-  const state = getState();
-  const reminder = state.reminders.find(r => r.id === id);
-  
-  if (!reminder) return;
-  
-  dialog.dataset.reminderId = id;
-  document.getElementById('dlgRemTitle').value = reminder.title;
-  document.getElementById('dlgRemDate').value = reminder.date;
-  document.getElementById('dlgRemType').value = reminder.type;
-  document.getElementById('dlgRemPriority').value = reminder.priority;
-  document.getElementById('dlgRemNotes').value = reminder.notes || '';
-  
-  const leadSelect = document.getElementById('dlgRemLead');
-  leadSelect.innerHTML = '<option value="">Sin lead</option>' + 
-    state.leads.map(l => `<option value="${l.companyName}"${l.companyName === reminder.lead ? ' selected' : ''}>${l.companyName}</option>`).join('');
-  
-  // Mostrar botón eliminar
-  document.getElementById('dlgRemDelete').style.display = 'block';
-  
-  // Manejar envío
-  dialog.onsubmit = (e) => {
-    e.preventDefault();
-    reminder.title = document.getElementById('dlgRemTitle').value;
-    reminder.date = document.getElementById('dlgRemDate').value;
-    reminder.type = document.getElementById('dlgRemType').value;
-    reminder.lead = document.getElementById('dlgRemLead').value;
-    reminder.priority = document.getElementById('dlgRemPriority').value;
-    reminder.notes = document.getElementById('dlgRemNotes').value;
-    
-    setState(state);
-    renderReminders();
-    dialog.close();
-    showToast('Recordatorio actualizado');
-  };
-  
-  dialog.showModal();
-}
-
-// Recordatorios
-function renderReminders() {
-  const state = getState();
-  const now = new Date();
-  
-  // Agrupar recordatorios por fecha
-  const groups = {
-    today: [],
-    tomorrow: [],
-    upcoming: [],
-    past: []
-  };
-  
-  state.reminders.forEach(r => {
-    const rDate = new Date(r.date);
-    const daysDiff = Math.floor((rDate - now) / (1000 * 60 * 60 * 24));
-    
-    if (daysDiff < 0 && r.status !== 'completed') {
-      groups.past.push(r);
-    } else if (daysDiff === 0) {
-      groups.today.push(r);
-    } else if (daysDiff === 1) {
-      groups.tomorrow.push(r);
-    } else {
-      groups.upcoming.push(r);
-    }
-  });
-  
-  // Generar HTML para cada grupo
-  const container = document.getElementById('remindersContainer');
-  container.innerHTML = `
-    ${Object.entries(groups).map(([group, items]) => items.length ? `
-      <div class="reminder-group">
-        <h3>
-          ${group === 'past' ? 'Atrasados' : 
-            group === 'today' ? 'Hoy' :
-            group === 'tomorrow' ? 'Mañana' : 'Próximos'}
-          <span class="count">${items.length}</span>
-        </h3>
-        ${items.map(r => `
-          <div class="reminder-card ${r.status} ${r.priority}" onclick="editReminder(${r.id})">
-            <div class="reminder-icon">${getReminderIcon(r.type)}</div>
-            <div class="reminder-info">
-              <div class="reminder-title">${r.title}</div>
-              <div class="reminder-meta">
-                ${formatDate(r.date)}
-                ${r.lead ? `· ${r.lead}` : ''}
-              </div>
-            </div>
-            <div class="reminder-actions">
-              ${r.status !== 'completed' ? 
-                `<button class="btn icon" onclick="completeReminder(${r.id}); event.stopPropagation()">✓</button>` : 
-                ''}
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    ` : '').join('')}
-  `;
-  
-  if (!state.reminders.length) {
-    container.innerHTML = '<div class="empty-state">No hay recordatorios</div>';
-  }
-}
-
-function completeReminder(id) {
-  const state = getState();
-  const reminder = state.reminders.find(r => r.id === id);
-  if (reminder) {
-    reminder.status = 'completed';
-    setState(state);
-    renderReminders();
-    showToast('Recordatorio completado');
-  }
-}
+};
 
 // Inicialización
-function initializeState() {
-  const state = getState();
-  if (!state.leads || !state.leads.length) {
-    setState(getState()); // Esto forzará la creación del estado inicial
-  }
-}
-
 function initializeEventListeners() {
-  // Event listeners para navegación
+  // Tab navigation
   document.querySelectorAll('.tab-btn').forEach(btn => 
-    btn.addEventListener('click', () => showTab(btn.dataset.tab))
+    btn.addEventListener('click', () => window.showTab(btn.dataset.tab))
   );
   
-  // Event listener para búsqueda de leads
-  document.getElementById('leadSearch').addEventListener('input', renderLeads);
+  // Lead management
+  document.getElementById('addLeadBtn').addEventListener('click', () => window.editLead());
+  document.getElementById('leadSearch').addEventListener('input', window.renderLeads);
   
-  // Event listeners para leads
-  document.getElementById('addLeadBtn').addEventListener('click', () => showLeadDialog());
+  // Lead dialog
+  document.getElementById('dlgCancel').addEventListener('click', () => document.getElementById('leadDialog').close());
+  document.getElementById('dlgDelete').addEventListener('click', () => window.deleteLead());
   
-  // Event listeners para plantillas
-  document.getElementById('addTplBtn').addEventListener('click', addTemplate);
-  document.getElementById('tplInput').addEventListener('keypress', e => {
-    if (e.key === 'Enter') addTemplate();
-  });
-  
-  // Event listeners para importación/exportación
-  document.getElementById('importBtn').addEventListener('click', importCSV);
-  document.getElementById('exportBtn').addEventListener('click', exportCSV);
+  // Msg dialog
+  document.getElementById('dlgMsgCancel').addEventListener('click', () => document.getElementById('msgDialog').close());
 }
 
+// Inicializar al cargar
 document.addEventListener('DOMContentLoaded', () => {
-  initializeState();
   initializeEventListeners();
-  showTab('leads');
+  window.showTab('leads');
 });
