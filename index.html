@@ -7,32 +7,59 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Mini-CRM B2B</h1>
 
-  <nav>
-    <button class="active">Leads</button>
-    <button>Pipeline</button>
-    <button>Plantillas</button>
-    <button>Recordatorios</button>
-    <button>Importar</button>
+  <!-- Encabezado principal -->
+  <header>
+    <h1>Mini-CRM B2B</h1>
+  </header>
+
+  <!-- Barra de navegación principal -->
+  <nav class="navbar">
+    <button class="nav-btn active" data-section="leads">Leads</button>
+    <button class="nav-btn" data-section="pipeline">Pipeline</button>
+    <button class="nav-btn" data-section="plantillas">Plantillas</button>
+    <button class="nav-btn" data-section="recordatorios">Recordatorios</button>
+    <button class="nav-btn" data-section="importar">Importar</button>
   </nav>
 
-  <table id="leads-table">
-    <thead>
-      <tr>
-        <th>Empresa</th>
-        <th>Contacto</th>
-        <th>Teléfono</th>
-        <th>Industria</th>
-        <th>Distrito</th>
-        <th>Estado</th>
-        <th>ICP</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Los leads se llenarán aquí con JS -->
-    </tbody>
-  </table>
+  <!-- Sección Leads (visible por defecto) -->
+  <section id="leads-section">
+    <div class="filter-container">
+      <input type="text" id="lead-filter" placeholder="Buscar empresa o contacto..." />
+    </div>
+    <table id="leads-table">
+      <thead>
+        <tr>
+          <th>Empresa</th>
+          <th>Contacto</th>
+          <th>Teléfono</th>
+          <th>Industria</th>
+          <th>Distrito</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Los leads se llenarán aquí con JS -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Secciones ocultas por defecto -->
+  <section id="pipeline-section" class="hidden">
+    <h2>Pipeline</h2>
+    <p>Gestión de oportunidades y etapas del proceso comercial.</p>
+  </section>
+  <section id="plantillas-section" class="hidden">
+    <h2>Plantillas</h2>
+    <p>Plantillas de correos y mensajes para tus clientes.</p>
+  </section>
+  <section id="recordatorios-section" class="hidden">
+    <h2>Recordatorios</h2>
+    <p>Recordatorios y tareas pendientes.</p>
+  </section>
+  <section id="importar-section" class="hidden">
+    <h2>Importar</h2>
+    <p>Importa tus leads desde un archivo CSV.</p>
+  </section>
 
   <script type="module" src="app.js"></script>
 </body>

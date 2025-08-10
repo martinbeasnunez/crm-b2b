@@ -5,46 +5,103 @@ const leads = [
     telefono: "+51999999999",
     industria: "Hotelería",
     distrito: "San Isidro",
-    estado: "Cliente",
-    icp: 15
-  },
-  {
-    empresa: "Clínica Providencia",
-    contacto: "Admisión",
-    telefono: "+51988888888",
-    industria: "Clínica/Salud",
-    distrito: "San Borja",
-    estado: "Lead",
-    icp: 15
-  },
-  {
-    empresa: "Casa Convivencia",
-    contacto: "María",
-    telefono: "+51977777777",
-    industria: "Residencial",
-    distrito: "Miraflores",
-    estado: "Propuesta",
-    icp: 15
-  }
-];
 
-function renderLeads() {
-  const tbody = document.querySelector("#leads-table tbody");
-  tbody.innerHTML = "";
+    // Mini-CRM B2B - Lógica principal
+    // Autor: martinbeasnunez
 
-  leads.forEach(lead => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${lead.empresa}</td>
-      <td>${lead.contacto}</td>
-      <td>${lead.telefono}</td>
-      <td>${lead.industria}</td>
-      <td>${lead.distrito}</td>
-      <td>${lead.estado}</td>
-      <td>${lead.icp}</td>
-    `;
-    tbody.appendChild(row);
-  });
-}
+    // Datos iniciales de leads
+    const leads = [
+      {
+        empresa: "TechNova S.A.",
+        contacto: "Ana Torres",
+        telefono: "987654321",
+        industria: "Tecnología",
+        distrito: "San Isidro"
+      },
+      {
+        empresa: "AgroPerú SAC",
+        contacto: "Luis Paredes",
+        telefono: "945123456",
+        industria: "Agricultura",
+        distrito: "La Molina"
+      },
+      {
+        empresa: "Finanzas Globales",
+        contacto: "María López",
+        telefono: "912345678",
+        industria: "Finanzas",
+        distrito: "Miraflores"
+      },
+      {
+        empresa: "ConstruyeYa",
+        contacto: "Carlos Ruiz",
+        telefono: "999888777",
+        industria: "Construcción",
+        distrito: "Surco"
+      },
+      {
+        empresa: "Salud Vital",
+        contacto: "Patricia Gómez",
+        telefono: "955667788",
+        industria: "Salud",
+        distrito: "San Borja"
+      }
+    ];
 
-document.addEventListener("DOMContentLoaded", renderLeads);
+    // Renderiza la tabla de leads dinámicamente
+    function renderLeadsTable(data) {
+      const tbody = document.querySelector('#leads-table tbody');
+      tbody.innerHTML = '';
+      data.forEach(lead => {
+        const tr = document.createElement('tr');
+        Object.entries(lead).forEach(([key, value]) => {
+          const td = document.createElement('td');
+          td.textContent = value;
+          // Para versión mobile, agrega etiqueta
+          td.setAttribute('data-label', key.charAt(0).toUpperCase() + key.slice(1));
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Filtra leads por texto (empresa o contacto)
+    function filterLeads() {
+      const filter = document.getElementById('lead-filter').value.toLowerCase();
+      const filtered = leads.filter(lead =>
+        lead.empresa.toLowerCase().includes(filter) ||
+        lead.contacto.toLowerCase().includes(filter)
+      );
+      renderLeadsTable(filtered);
+    }
+
+    // Maneja la navegación entre secciones
+    function setupNavigation() {
+      const navBtns = document.querySelectorAll('.nav-btn');
+      const sections = {
+        leads: document.getElementById('leads-section'),
+        pipeline: document.getElementById('pipeline-section'),
+        plantillas: document.getElementById('plantillas-section'),
+        recordatorios: document.getElementById('recordatorios-section'),
+        importar: document.getElementById('importar-section')
+      };
+      navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Quitar activo de todos
+          navBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          // Ocultar todas las secciones
+          Object.values(sections).forEach(sec => sec.classList.add('hidden'));
+          // Mostrar la sección correspondiente
+          const sectionKey = btn.getAttribute('data-section');
+          sections[sectionKey].classList.remove('hidden');
+        });
+      });
+    }
+
+    // Inicializa eventos y renderizado
+    function init() {
+      renderLeadsTable(leads);
+      document.getElementById('lead-filter').addEventListener('input', filterLeads);
+      setupNavigation();
+    }
