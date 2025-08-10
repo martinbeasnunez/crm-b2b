@@ -684,18 +684,20 @@ function showMsgDialog(companyName) {
   
   if (!lead) return;
 
-  // Llenar plantillas
-  const select = document.getElementById('dlgMsgTemplate');
+  // Obtener las plantillas para la industria del lead
   const industryTemplates = state.templates[lead.industry] || state.templates.default;
+  
+  // Llenar el selector de plantillas
+  const select = document.getElementById('dlgMsgTemplate');
   select.innerHTML = industryTemplates.map((tpl, i) => 
     `<option value="${i}">${tpl.substring(0, 50)}...</option>`
   ).join('');
   
   // Función para actualizar preview
-  window.updateMessagePreview = () => {
-    const industryTemplates = state.templates[lead.industry] || state.templates.default;
-    const tpl = industryTemplates[select.value];
-    let msg = tpl;
+  window.updateMessagePreview = function() {
+    const currentTemplates = state.templates[lead.industry] || state.templates.default;
+    const selectedTemplate = currentTemplates[select.value];
+    let msg = selectedTemplate;
     Object.keys(lead).forEach(key => {
       msg = msg.replace(new RegExp(`{{${key}}}`, 'g'), lead[key]);
     });
@@ -905,6 +907,29 @@ function initializeState() {
   if (!state.leads || !state.leads.length) {
     setState(getState()); // Esto forzará la creación del estado inicial
   }
+}
+
+function initializeEventListeners() {
+  // Event listeners para navegación
+  document.querySelectorAll('.tab-btn').forEach(btn => 
+    btn.addEventListener('click', () => showTab(btn.dataset.tab))
+  );
+  
+  // Event listener para búsqueda de leads
+  document.getElementById('leadSearch').addEventListener('input', renderLeads);
+  
+  // Event listeners para leads
+  document.getElementById('addLeadBtn').addEventListener('click', () => showLeadDialog());
+  
+  // Event listeners para plantillas
+  document.getElementById('addTplBtn').addEventListener('click', addTemplate);
+  document.getElementById('tplInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') addTemplate();
+  });
+  
+  // Event listeners para importación/exportación
+  document.getElementById('importBtn').addEventListener('click', importCSV);
+  document.getElementById('exportBtn').addEventListener('click', exportCSV);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -377,6 +377,26 @@ tr:hover td {
   pointer-events: auto;
 }
 
+/* Estilos de plantillas */
+.template-group {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.template-group h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: var(--primary);
+}
+
+.grid.g-3 {
+  grid-template-columns: 200px 1fr auto;
+  gap: 1rem;
+  align-items: start;
+}
+
 /* Estilos específicos de recordatorios */
 .reminders-header {
   display: flex;
