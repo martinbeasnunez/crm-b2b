@@ -1,22 +1,29 @@
 
 
-/* Mini-CRM B2B - Tema oscuro y layout moderno */
+
+/* Mini-CRM B2B 2025 - Glassmorphism, animaciones, minimalismo */
 :root {
-  --bg: #0f1115;
-  --panel: #151923;
-  --muted: #242a38;
+  --bg: #10131a;
+  --panel: rgba(30,34,44,0.85);
+  --muted: rgba(44,49,65,0.85);
   --text: #e7eaf3;
   --sub: #a6adbb;
   --acc: #7c9cff;
   --ok: #62d392;
   --warn: #ffcf66;
   --danger: #ff7a7a;
+  --blur: 16px;
+  --radius: 18px;
+  --shadow: 0 4px 32px #0006;
+  --trans: 0.25s cubic-bezier(.4,0,.2,1);
 }
 body {
-  background: var(--bg);
+  background: linear-gradient(120deg, #10131a 0%, #232a3a 100%);
   color: var(--text);
-  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
   margin: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 .wrap {
   max-width: 1100px;
@@ -27,16 +34,23 @@ header.sticky {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(15,17,21,0.85);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px #0002;
+  background: var(--panel);
+  backdrop-filter: blur(var(--blur));
+  box-shadow: var(--shadow);
+  border-bottom: 1px solid #2226;
+  animation: fadeInDown var(--trans);
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: none; }
 }
 h1 {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2.3rem;
+  font-weight: 800;
   margin: 0;
   color: var(--acc);
   letter-spacing: 1px;
+  text-shadow: 0 2px 8px #0003;
 }
 .tabs {
   display: flex;
@@ -44,30 +58,42 @@ h1 {
   margin-top: 1rem;
 }
 .tab-btn {
-  background: none;
+  background: rgba(124,156,255,0.08);
   color: var(--sub);
   border: none;
-  font-size: 1rem;
+  font-size: 1.08rem;
   padding: 0.7rem 1.2rem;
-  border-radius: 6px 6px 0 0;
+  border-radius: 10px 10px 0 0;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background var(--trans), color var(--trans), box-shadow var(--trans);
+  box-shadow: 0 2px 8px #0002;
+  font-weight: 500;
 }
 .tab-btn.active {
-  background: var(--panel);
-  color: var(--acc);
-  font-weight: 600;
-  box-shadow: 0 2px 8px #0002;
+  background: var(--acc);
+  color: var(--bg);
+  font-weight: 700;
+  box-shadow: 0 4px 16px #0003;
+}
+.tab-btn:hover {
+  background: var(--ok);
+  color: var(--bg);
 }
 main {
   margin-top: 0.5rem;
 }
 .panel {
   background: var(--panel);
-  border-radius: 12px;
-  box-shadow: 0 2px 12px #0003;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   padding: 2rem 1.5rem;
   margin-bottom: 2rem;
+  backdrop-filter: blur(var(--blur));
+  animation: fadeInUp var(--trans);
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
 }
 .grid {
   display: grid;
@@ -81,28 +107,34 @@ main {
 .btn {
   font-family: inherit;
   font-size: 1rem;
-  border-radius: 6px;
+  border-radius: 10px;
   border: none;
   padding: 0.6em 1.2em;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background var(--trans), color var(--trans), box-shadow var(--trans);
   margin: 0 0.2em;
+  box-shadow: 0 2px 8px #0002;
+  font-weight: 600;
 }
 .btn.primary { background: var(--acc); color: var(--bg); }
 .btn.ghost { background: var(--muted); color: var(--sub); }
 .btn.warn { background: var(--warn); color: var(--bg); }
 .btn.danger { background: var(--danger); color: var(--bg); }
-.btn:active, .btn:focus { outline: 2px solid var(--acc); }
+.btn.ok { background: var(--ok); color: var(--bg); }
+.btn:active, .btn:focus { outline: 2px solid var(--acc); box-shadow: 0 4px 16px var(--acc); }
+.btn:hover { filter: brightness(1.1); }
 input, select, textarea {
   background: var(--muted);
   color: var(--text);
   border: 1px solid var(--sub);
-  border-radius: 6px;
+  border-radius: 10px;
   padding: 0.5em 1em;
   font-size: 1rem;
+  transition: border var(--trans), box-shadow var(--trans);
 }
 input:focus, select:focus, textarea:focus {
   outline: 2px solid var(--acc);
+  box-shadow: 0 2px 8px var(--acc);
 }
 table {
   width: 100%;
@@ -111,53 +143,65 @@ table {
   background: var(--panel);
   color: var(--text);
   font-size: 1rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  animation: fadeInUp var(--trans);
 }
 th, td {
   padding: 0.7em 0.5em;
-  border-bottom: 1px solid var(--muted);
+  border-bottom: 1px solid #2226;
 }
 th {
   background: var(--muted);
   color: var(--acc);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 tr:hover td {
   background: var(--acc);
   color: var(--bg);
+  transition: background var(--trans), color var(--trans);
 }
 .kanban {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   overflow-x: auto;
   padding-bottom: 1rem;
 }
 .col {
   background: var(--muted);
-  border-radius: 8px;
+  border-radius: var(--radius);
   min-width: 220px;
   padding: 0.5rem;
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(var(--blur));
+  animation: fadeInUp var(--trans);
 }
 .col-title {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--acc);
   margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
 }
 .card {
   background: var(--panel);
-  border-radius: 6px;
-  box-shadow: 0 2px 8px #0002;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px #0004;
   padding: 0.7rem;
   color: var(--text);
   cursor: grab;
-  transition: box-shadow 0.2s;
+  transition: box-shadow var(--trans), opacity var(--trans);
+  font-weight: 500;
+  animation: fadeInUp var(--trans);
 }
 .card.dragging {
   opacity: 0.5;
-  box-shadow: 0 4px 16px #0004;
+  box-shadow: 0 4px 24px #0006;
 }
 .hidden {
   display: none !important;
@@ -165,19 +209,21 @@ tr:hover td {
 .dlg {
   background: var(--panel);
   color: var(--text);
-  border-radius: 12px;
+  border-radius: var(--radius);
   min-width: 350px;
   max-width: 95vw;
-  box-shadow: 0 2px 16px #0006;
+  box-shadow: var(--shadow);
   padding: 0;
+  backdrop-filter: blur(var(--blur));
+  animation: fadeInUp var(--trans);
 }
 .dlg-h {
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 700;
   background: var(--muted);
   color: var(--acc);
   padding: 1rem 1.5rem;
-  border-radius: 12px 12px 0 0;
+  border-radius: var(--radius) var(--radius) 0 0;
 }
 .dlg-c {
   padding: 1.5rem;
@@ -187,7 +233,7 @@ tr:hover td {
   gap: 1rem;
   justify-content: flex-end;
   padding: 1rem 1.5rem;
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 var(--radius) var(--radius);
   background: var(--muted);
 }
 .toast {
@@ -198,13 +244,14 @@ tr:hover td {
   background: var(--panel);
   color: var(--ok);
   padding: 1rem 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px #0006;
-  font-weight: 600;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  font-weight: 700;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s;
+  transition: opacity var(--trans);
   z-index: 100;
+  backdrop-filter: blur(var(--blur));
 }
 .toast.show {
   opacity: 1;
