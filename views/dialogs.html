@@ -1,0 +1,20 @@
+<!-- Dialog Mensaje -->
+<dialog id="msgDialog">
+  <form method="dialog" class="dlg">
+    <div class="dlg-h">Mensaje</div>
+    <div class="dlg-c">
+      <div>
+        <label>Plantilla</label>
+        <select id="dlgMsgTemplate" onchange="updateMessagePreview()"></select>
+      </div>
+      <div>
+        <label>Mensaje</label>
+        <textarea id="dlgMsgText" rows="4" required></textarea>
+      </div>
+    </div>
+    <div class="dlg-f">
+      <button type="button" class="btn ghost" id="dlgMsgCancel">Cancelar</button>
+      <button type="submit" class="btn primary">Enviar</button>
+    </div>
+  </form>
+</dialog>
