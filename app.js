@@ -55,21 +55,95 @@ function renderLeads() {
     let statusIcon = l.lastMsg ? '💬' : '';
     html += `<tr${l.lastMsg?" style='background:var(--muted)'":""}><td>${l.companyName}</td><td>${l.contactName}</td><td>${l.phone}</td><td>${l.industry}</td><td>${l.district}</td><td>${l.size||''}</td><td>${l.icpScore}</td><td>${l.status} ${statusIcon}</td>`;
     // Sugerencia de plantilla
-    let tpl = getSuggestedTemplate(l, state.templates);
-    html += `<td><button class='btn primary' onclick="showMsgDialog('${l.companyName}')">${tpl?'Sugerir':''}</button></td>`;
+    let tpl = getSuggestedTemplate(l);
+    html += `<td><button class='btn primary' onclick="showMsgDialog('${l.companyName}')">💬 Mensaje</button></td>`;
     html += `<td><button class=\"btn ghost\" onclick=\"editLead('${l.companyName}')\">Editar</button></td></tr>`;
   }
   html += '</tbody></table>';
   document.getElementById('leadsTableWrap').innerHTML = html;
 }
 
-// Sugerencia de plantilla según industria y etapa
-function getSuggestedTemplate(lead, templates) {
-  if (!templates || !templates.length) return '';
-  // Ejemplo: si industria es hotelería, usar la primera plantilla
-  if ((lead.industry||'').toLowerCase().includes('hotel')) return templates[0];
-  if ((lead.industry||'').toLowerCase().includes('clínica')) return templates[1];
-  return templates[0];
+// Plantillas según industria
+const INDUSTRY_TEMPLATES = {
+  'Hotelería': {
+    initial: `Hola {contactName},
+
+Me comunico porque {companyName} podría optimizar su servicio de lavandería hotelera. En GetLavado somos especialistas con más de 8 años entregando:
+
+• Blancura inmaculada en sábanas y toallas
+• Cuidado profesional de uniformes 
+• Servicio VIP 24/7
+• Puntualidad garantizada
+
+¿Te gustaría una cotización sin compromiso?`,
+    followUp: `Hola {contactName},
+
+Quería retomar el contacto sobre el servicio de lavandería VIP para {companyName}. Muchos hoteles ya confían en nosotros por:
+
+• 864 empresas satisfechas
+• 8 años de experiencia
+• 5 sedes operativas en Lima
+• Precios transparentes y justos
+
+¿Podemos agendar una breve llamada?`
+  },
+  'Clínica': {
+    initial: `Hola {contactName},
+
+Me comunico porque {companyName} necesita los más altos estándares en lavandería. En GetLavado garantizamos:
+
+• Protocolos especializados de esterilización
+• Máxima higiene certificada
+• Servicio 24/7 adaptado a clínicas
+• Puntualidad garantizada
+
+¿Te gustaría conocer cómo otras clínicas optimizan sus operaciones con nosotros?`,
+    followUp: `Hola {contactName},
+
+Quería retomar el contacto sobre nuestro servicio especializado para {companyName}. Entendemos la importancia de:
+
+• Protocolos de esterilización certificados
+• Higiene hospitalaria garantizada
+• Servicio 24/7 sin interrupciones
+• Comunicación ágil vía app
+
+¿Podemos coordinar una breve reunión?`
+  },
+  'Spa': {
+    initial: `Hola {contactName},
+
+Me comunico porque {companyName} podría elevar la experiencia de sus clientes. En GetLavado nos especializamos en:
+
+• Blancura y suavidad inmaculada en toallas
+• Servicio premium 24/7
+• Fragancias neutras especiales
+• Cuidado profesional de textiles de lujo
+
+¿Te gustaría saber cómo otros spas han mejorado su servicio con nosotros?`,
+    followUp: `Hola {contactName},
+
+Quería retomar el contacto sobre el servicio premium para {companyName}. Nos encargamos de:
+
+• Mantener tus textiles impecables
+• Servicio 24/7 sin fallas
+• Comunicación ágil vía app
+• Puntualidad garantizada
+
+¿Podemos agendar una breve llamada?`
+  }
+};
+
+// Función para obtener plantilla según industria y etapa
+function getSuggestedTemplate(lead) {
+  const template = INDUSTRY_TEMPLATES[lead.industry];
+  if (!template) return '';
+  
+  // Si ya hay mensajes previos, usar followUp
+  const messageType = lead.lastMsg ? 'followUp' : 'initial';
+  
+  return template[messageType]
+    .replace(/{contactName}/g, lead.contactName)
+    .replace(/{companyName}/g, lead.companyName);
 }
 
 // Dialog para mostrar/copy/enviar mensaje y guardar historial
@@ -77,11 +151,19 @@ window.showMsgDialog = function(companyName) {
   const state = getState();
   const lead = state.leads.find(l=>l.companyName===companyName);
   if (!lead) return;
-  let tpl = getSuggestedTemplate(lead, state.templates);
-  let msg = tpl.replace(/\{\{(\w+)\}\}/g, (_,k)=>lead[k]||'');
+  let msg = getSuggestedTemplate(lead);
   let dlg = document.createElement('dialog');
   dlg.className = 'dlg';
-  dlg.innerHTML = `<div class='dlg-h'>Mensaje sugerido</div><div class='dlg-c'><textarea style='width:100%;height:80px'>${msg}</textarea></div><div class='dlg-f'><button class='btn primary' id='copyMsgBtn'>Copiar</button><button class='btn ok' id='sendMsgBtn'>Marcar enviado</button><button class='btn ghost' id='closeMsgBtn'>Cerrar</button></div>`;
+  dlg.innerHTML = `
+    <div class='dlg-h'>Mensaje sugerido para ${lead.industry}</div>
+    <div class='dlg-c'>
+      <textarea style='width:100%;height:200px;font-family:inherit;padding:8px;border:1px solid var(--muted);border-radius:4px;'>${msg}</textarea>
+    </div>
+    <div class='dlg-f'>
+      <button class='btn primary' id='copyMsgBtn'>✂️ Copiar</button>
+      <button class='btn ok' id='sendMsgBtn'>✅ Marcar enviado</button>
+      <button class='btn ghost' id='closeMsgBtn'>Cerrar</button>
+    </div>`;
   document.body.appendChild(dlg);
   dlg.showModal();
   dlg.querySelector('#copyMsgBtn').onclick = ()=>{
