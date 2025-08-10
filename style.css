@@ -2,6 +2,8 @@
 
 
 /* Mini-CRM B2B - Diseño moderno inspirado en Laundryheap */
+
+/* Estilos base */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap');
 
 :root {
@@ -317,6 +319,138 @@ tr:hover td {
 .toast.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Estilos específicos de recordatorios */
+.reminders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  background: var(--white);
+  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.reminder-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.reminder-group {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.reminder-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.reminder-group .count {
+  background: var(--muted);
+  color: var(--sub);
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 1rem;
+}
+
+.reminder-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  margin-bottom: 0.5rem;
+  transition: all var(--trans);
+  border: 1px solid var(--muted);
+}
+
+.reminder-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.reminder-card.completed {
+  opacity: 0.6;
+}
+
+.reminder-card.high {
+  border-left: 3px solid var(--danger);
+}
+
+.reminder-card.medium {
+  border-left: 3px solid var(--warn);
+}
+
+.reminder-card.low {
+  border-left: 3px solid var(--ok);
+}
+
+.reminder-icon {
+  font-size: 1.5rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--muted);
+  border-radius: var(--radius);
+}
+
+.reminder-info {
+  overflow: hidden;
+}
+
+.reminder-title {
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+
+.reminder-meta {
+  font-size: 0.85rem;
+  color: var(--sub);
+  display: flex;
+  gap: 1rem;
+}
+
+.reminder-actions {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity var(--trans);
+}
+
+.reminder-card:hover .reminder-actions {
+  opacity: 1;
+}
+
+.reminder-actions .btn {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.9rem;
+  min-width: auto;
+}
+
+#reminderFilter {
+  min-width: 120px;
+  background: var(--white);
+  border: 1px solid var(--muted);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+  color: var(--text);
+  font-size: 0.9rem;
 }
 
 /* Estilos de Recordatorios */
