@@ -1,29 +1,32 @@
 
 
 
-/* Mini-CRM B2B 2025 - Glassmorphism, animaciones, minimalismo */
+/* Mini-CRM B2B - Diseño moderno inspirado en Laundryheap */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap');
+
 :root {
-  --bg: #10131a;
-  --panel: rgba(30,34,44,0.85);
-  --muted: rgba(44,49,65,0.85);
-  --text: #e7eaf3;
-  --sub: #a6adbb;
-  --acc: #7c9cff;
-  --ok: #62d392;
-  --warn: #ffcf66;
-  --danger: #ff7a7a;
-  --blur: 16px;
-  --radius: 18px;
-  --shadow: 0 4px 32px #0006;
+  --bg: #f7f9fc;
+  --white: #ffffff;
+  --panel: #ffffff;
+  --muted: #f0f4f8;
+  --text: #1a2b3b;
+  --sub: #6b7c93;
+  --acc: #00b0ba;
+  --ok: #21b87d;
+  --warn: #f7b63f;
+  --danger: #e54d62;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1);
   --trans: 0.25s cubic-bezier(.4,0,.2,1);
 }
 body {
-  background: linear-gradient(120deg, #10131a 0%, #232a3a 100%);
+  background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+  font-family: 'Outfit', -apple-system, system-ui, sans-serif;
   margin: 0;
-  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.5;
 }
 .wrap {
   max-width: 1100px;
@@ -34,23 +37,20 @@ header.sticky {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--panel);
-  backdrop-filter: blur(var(--blur));
+  background: var(--white);
   box-shadow: var(--shadow);
-  border-bottom: 1px solid #2226;
-  animation: fadeInDown var(--trans);
+  border-bottom: 1px solid var(--muted);
+  padding: 16px 0;
 }
 @keyframes fadeInDown {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: none; }
 }
 h1 {
-  font-size: 2.3rem;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 600;
   margin: 0;
   color: var(--acc);
-  letter-spacing: 1px;
-  text-shadow: 0 2px 8px #0003;
 }
 .tabs {
   display: flex;
