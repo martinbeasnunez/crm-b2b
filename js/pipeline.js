@@ -46,6 +46,10 @@ export function renderPipeline() {
 }
 
 export function initPipeline() {
+  // Evitar registrar listeners múltiples si initPipeline se llama varias veces
+  if (document._pipelineInitialized) return;
+  document._pipelineInitialized = true;
+
   // Event listeners para drag & drop
   document.addEventListener('dragstart', e => {
     const card = e.target.closest('.kanban-card');
@@ -85,6 +89,9 @@ export function initPipeline() {
     }
   });
   
+  // Re-renderizar cuando el estado cambie desde otras partes (por ejemplo, leads)
+  window.addEventListener('state:changed', () => renderPipeline());
+
   // Renderizado inicial
   renderPipeline();
 }

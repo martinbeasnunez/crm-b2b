@@ -17,6 +17,10 @@
         <button class="tab-btn" data-tab="recordatorios">Recordatorios</button>
         <button class="tab-btn" data-tab="importar">Importar</button>
       </nav>
+      <div class="theme-toggle">
+        <label for="darkModeToggle" class="sr-only">Modo oscuro</label>
+        <button id="darkModeToggle" aria-pressed="false" title="Alternar modo oscuro">🌙</button>
+      </div>
     </div>
   </header>
   
@@ -34,6 +38,7 @@
     import { showTab } from './js/navigation.js';
   import { initEventListeners } from './js/events.js';
     import { renderLeads } from './js/leads.js';
+  import { isDarkMode, applyTheme } from './js/common.js';
 
     async function fetchText(path) {
       try {
@@ -96,6 +101,22 @@
     }
 
     document.addEventListener('DOMContentLoaded', loadViews);
+    // Inicializar tema oscuro
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const dark = isDarkMode();
+        applyTheme(dark);
+        const toggle = document.getElementById('darkModeToggle');
+        if (toggle) {
+          toggle.addEventListener('click', () => {
+            const now = document.documentElement.classList.contains('dark');
+            applyTheme(!now);
+          });
+        }
+      } catch (e) {
+        console.warn('No pudo inicializarse el toggle de tema', e.message);
+      }
+    });
   </script>
 </body>
 </html>

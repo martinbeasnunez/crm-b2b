@@ -180,3 +180,12 @@ export function initLeads() {
 window.editLead = editLead;
 window.deleteLead = deleteLead;
 window.renderLeads = renderLeads;
+
+// Helper para pruebas: añadir un lead programáticamente y guardar
+window.addLeadProgrammatically = function(lead) {
+  const state = getState();
+  state.leads.push(lead);
+  setState(state);
+  renderLeads();
+  return lead;
+}

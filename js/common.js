@@ -3,6 +3,7 @@ const STAGES = ['Nuevo','Calificado','En Conversación','Propuesta','Cerrado-Won
 const DISTRICTS = ['Miraflores','San Isidro','Barranco','Surco','La Molina','San Borja'];
 const INDUSTRIAS_ICP = ['Hotelería','Clínica','Salud'];
 const LS_KEY = 'miniCrmB2B';
+const THEME_KEY = 'miniCrmB2B_theme';
 
 // Plantillas base por industria
 const DEFAULT_TEMPLATES = {
@@ -64,6 +65,11 @@ export function getState() {
 
 export function setState(state) {
   localStorage.setItem(LS_KEY, JSON.stringify(state));
+  try {
+    window.dispatchEvent(new CustomEvent('state:changed', { detail: state }));
+  } catch (e) {
+    // fallbacks silenciosos en entornos restringidos
+  }
 }
 
 export function showToast(msg) {
@@ -71,6 +77,31 @@ export function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Tema oscuro: persistencia y toggle
+export function isDarkMode() {
+  // preferencia del usuario en localStorage, si no usar prefers-color-scheme
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored) return stored === 'dark';
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+export function applyTheme(dark) {
+  try {
+    const html = document.documentElement;
+    if (dark) {
+      html.classList.add('dark');
+      localStorage.setItem(THEME_KEY, 'dark');
+    } else {
+      html.classList.remove('dark');
+      localStorage.setItem(THEME_KEY, 'light');
+    }
+    const btn = document.getElementById('darkModeToggle');
+    if (btn) btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+  } catch (e) {
+    console.warn('No se pudo aplicar el tema:', e.message);
+  }
 }
 
 export function formatDate(dateStr) {
