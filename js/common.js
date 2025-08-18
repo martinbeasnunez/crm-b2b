@@ -81,10 +81,8 @@ export function showToast(msg) {
 
 // Tema oscuro: persistencia y toggle
 export function isDarkMode() {
-  // preferencia del usuario en localStorage; si no hay preferencia, usar LIGHT por defecto
-  const stored = localStorage.getItem(THEME_KEY);
-  if (stored) return stored === 'dark';
-  return false; // default a modo claro
+  // Forzar modo claro por defecto: ignorar preferencias previas en localStorage
+  return false;
 }
 
 export function applyTheme(dark) {
