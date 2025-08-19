@@ -1,5 +1,35 @@
 import { getState, setState, showToast, scoreICP } from './common.js';
 
+// Función para enviar mensaje automático por WhatsApp Web
+function sendWhatsAppMessage(lead) {
+  const phone = lead.phone ? lead.phone.replace(/\D/g, '') : '';
+  
+  if (!phone) {
+    showToast('No se puede enviar WhatsApp: teléfono no disponible', 'error');
+    return;
+  }
+  
+  // Mensaje predeterminado personalizable
+  const message = `Hola ${lead.contactName || 'estimado/a'}, 
+
+Gracias por tu interés en nuestros servicios. Me pongo en contacto contigo desde ${lead.companyName || 'tu empresa'} para conversar sobre cómo podemos ayudarte.
+
+¿Cuándo sería un buen momento para tener una breve conversación?
+
+Saludos!`;
+  
+  // Codificar el mensaje para URL
+  const encodedMessage = encodeURIComponent(message);
+  
+  // Construir URL de WhatsApp Web
+  const whatsappURL = `https://web.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
+  
+  // Abrir en una nueva ventana
+  window.open(whatsappURL, '_blank');
+  
+  showToast(`WhatsApp abierto para ${lead.contactName}`, 'success');
+}
+
 export function renderPipeline() {
   const state = getState();
   const leads = state.leads;
@@ -81,10 +111,18 @@ export function initPipeline() {
       const state = getState();
       const lead = state.leads.find(l => l.companyName === company);
       if (lead && lead.status !== newStatus) {
+        const oldStatus = lead.status;
         lead.status = newStatus;
         setState(state);
         renderPipeline();
         showToast(`Movido a ${newStatus}`);
+        
+        // Disparar WhatsApp automáticamente cuando se mueva a "En Conversación"
+        if (newStatus === 'En Conversación' && oldStatus !== 'En Conversación') {
+          setTimeout(() => {
+            sendWhatsAppMessage(lead);
+          }, 500); // Pequeño delay para que se complete la actualización visual
+        }
       }
     }
   });
