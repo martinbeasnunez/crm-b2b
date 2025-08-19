@@ -3,6 +3,7 @@ import { getState, setState, showToast, scoreICP } from './common.js';
 // Función para enviar mensaje automático por WhatsApp Web
 function sendWhatsAppMessage(lead) {
   const phone = lead.phone ? lead.phone.replace(/\D/g, '') : '';
+  const myNumber = '965450086'; // Tu número de WhatsApp
   
   if (!phone) {
     showToast('No se puede enviar WhatsApp: teléfono no disponible', 'error');
@@ -18,16 +19,136 @@ Gracias por tu interés en nuestros servicios. Me pongo en contacto contigo desd
 
 Saludos!`;
   
-  // Codificar el mensaje para URL
-  const encodedMessage = encodeURIComponent(message);
+  // Método mejorado: usar técnica de inyección de script
+  sendViaWhatsAppWebAutomatic(phone, message, lead);
   
-  // Construir URL de WhatsApp Web
+  showToast(`🚀 Enviando WhatsApp automático a ${lead.contactName}`, 'success');
+}
+
+// Función mejorada para envío automático real
+function sendViaWhatsAppWebAutomatic(phone, message, lead) {
+  const encodedMessage = encodeURIComponent(message);
   const whatsappURL = `https://web.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
   
-  // Abrir en una nueva ventana
-  window.open(whatsappURL, '_blank');
+  // Crear ventana con configuración optimizada
+  const popup = window.open(whatsappURL, 'whatsapp_auto_sender', 
+    'width=1200,height=800,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
   
-  showToast(`WhatsApp abierto para ${lead.contactName}`, 'success');
+  if (!popup) {
+    showToast('❌ Habilita pop-ups para envío automático', 'error');
+    return;
+  }
+  
+  showToast('📱 Preparando WhatsApp Web...', 'info');
+  
+  // Escuchar mensajes de la ventana de WhatsApp
+  window.addEventListener('message', function handleWhatsAppMessage(event) {
+    if (event.origin !== 'https://web.whatsapp.com') return;
+    
+    if (event.data === 'whatsapp-sent') {
+      window.removeEventListener('message', handleWhatsAppMessage);
+      showToast(`✅ Mensaje enviado automáticamente a ${lead.contactName}`, 'success');
+    } else if (event.data === 'whatsapp-manual') {
+      window.removeEventListener('message', handleWhatsAppMessage);
+      showToast('⚡ Presiona Enter en WhatsApp para enviar', 'warning');
+    }
+  });
+  
+  // Script de automatización que se inyectará
+  const autoScript = `
+    (function() {
+      console.log('🤖 Script de automatización iniciado');
+      
+      function clickSendButton() {
+        const selectors = [
+          '[data-testid="send"]',
+          'button[aria-label*="Enviar"]',
+          'button[aria-label*="Send"]',
+          '[data-icon="send"]',
+          'span[data-testid="send"]'
+        ];
+        
+        for (let selector of selectors) {
+          const btn = document.querySelector(selector);
+          if (btn && !btn.disabled && btn.offsetParent !== null) {
+            setTimeout(() => {
+              btn.click();
+              console.log('✅ Botón de enviar clickeado');
+              window.parent.postMessage('whatsapp-sent', 'https://web.whatsapp.com');
+              setTimeout(() => window.close(), 2000);
+            }, 300);
+            return true;
+          }
+        }
+        return false;
+      }
+      
+      function waitForReady() {
+        let attempts = 0;
+        const maxAttempts = 25;
+        
+        const checker = setInterval(() => {
+          attempts++;
+          
+          // Verificar si WhatsApp está listo
+          const ready = document.querySelector('[data-testid="conversation-compose-box-input"]') ||
+                       document.querySelector('[contenteditable="true"]') ||
+                       document.querySelector('.selectable-text[contenteditable="true"]');
+          
+          if (ready && clickSendButton()) {
+            clearInterval(checker);
+          } else if (attempts >= maxAttempts) {
+            clearInterval(checker);
+            console.log('⚠️ Timeout - envío manual requerido');
+            window.parent.postMessage('whatsapp-manual', 'https://web.whatsapp.com');
+          }
+        }, 1200);
+      }
+      
+      // Iniciar verificación
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', waitForReady);
+      } else {
+        setTimeout(waitForReady, 1000);
+      }
+    })();
+  `;
+  
+  // Intentar inyectar el script cuando la ventana cargue
+  const injectScript = () => {
+    try {
+      popup.eval(autoScript);
+    } catch (error) {
+      // Si falla por CORS, usar método alternativo
+      console.log('Usando método alternativo para automatización');
+      
+      // Crear y agregar script tag
+      const script = popup.document.createElement('script');
+      script.textContent = autoScript;
+      popup.document.head.appendChild(script);
+    }
+  };
+  
+  // Múltiples intentos de inyección
+  popup.addEventListener('load', injectScript);
+  
+  setTimeout(() => {
+    if (popup && !popup.closed) {
+      popup.focus();
+      try {
+        injectScript();
+      } catch (e) {
+        console.log('Inyección diferida');
+      }
+    }
+  }, 3000);
+  
+  // Timeout de seguridad
+  setTimeout(() => {
+    if (popup && !popup.closed) {
+      showToast('💬 WhatsApp Web listo - verifica el envío', 'info');
+    }
+  }, 15000);
 }
 
 export function renderPipeline() {
