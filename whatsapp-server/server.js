@@ -80,7 +80,36 @@ async function initWhatsApp() {
 
 // Rutas de la API
 
-// Obtener QR Code
+// Verificar estado de conexión WhatsApp
+app.get('/api/whatsapp/status', (req, res) => {
+  if (isAuthenticated) {
+    return res.json({ 
+      status: 'authenticated',
+      message: '✅ WhatsApp Conectado',
+      authenticated: true,
+      connected: true
+    });
+  }
+  
+  if (qrCodeData) {
+    return res.json({ 
+      status: 'qr_ready',
+      message: 'Esperando escaneo de QR...',
+      qr: qrCodeData,
+      authenticated: false,
+      connected: false
+    });
+  }
+  
+  res.json({ 
+    status: 'connecting',
+    message: 'Generando código QR...',
+    authenticated: false,
+    connected: false
+  });
+});
+
+// Obtener QR Code (mantener compatibilidad)
 app.get('/api/qr', async (req, res) => {
   if (isAuthenticated) {
     return res.json({ authenticated: true, message: 'Ya está conectado' });
@@ -98,7 +127,7 @@ app.get('/api/qr', async (req, res) => {
   }
 });
 
-// Verificar estado de conexión
+// Verificar estado de conexión (mantener compatibilidad)
 app.get('/api/status', (req, res) => {
   res.json({ 
     authenticated: isAuthenticated,
@@ -106,7 +135,68 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// Enviar mensaje
+// Enviar mensaje WhatsApp
+app.post('/api/whatsapp/send', async (req, res) => {
+  const { number, message } = req.body;
+
+  if (!isAuthenticated || !client) {
+    return res.status(400).json({ 
+      success: false,
+      error: 'WhatsApp no está conectado. Escanea el QR primero.' 
+    });
+  }
+
+  if (!number || !message) {
+    return res.status(400).json({ 
+      success: false,
+      error: 'Número y mensaje son requeridos' 
+    });
+  }
+
+  try {
+    const formattedNumber = number.includes('@') ? number : `${number}@c.us`;
+    await client.sendText(formattedNumber, message);
+    
+    console.log(`📤 Mensaje enviado a ${number}: ${message}`);
+    res.json({ 
+      success: true, 
+      message: 'Mensaje enviado correctamente' 
+    });
+  } catch (error) {
+    console.error('Error enviando mensaje:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Error al enviar mensaje: ' + error.message 
+    });
+  }
+});
+
+// Reiniciar conexión WhatsApp
+app.post('/api/whatsapp/restart', async (req, res) => {
+  try {
+    if (client) {
+      await client.logout();
+    }
+    
+    client = null;
+    isAuthenticated = false;
+    qrCodeData = null;
+    
+    console.log('🔄 Reiniciando conexión WhatsApp...');
+    
+    // Reinicializar después de un breve delay
+    setTimeout(() => {
+      initWhatsApp();
+    }, 2000);
+    
+    res.json({ success: true, message: 'Reiniciando conexión...' });
+  } catch (error) {
+    console.error('Error reiniciando WhatsApp:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Enviar mensaje (mantener compatibilidad)
 app.post('/api/send-message', async (req, res) => {
   const { phone, message, contactName } = req.body;
 
