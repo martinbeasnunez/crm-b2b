@@ -1,0 +1,32 @@
+# Node modules
+node_modules/
+whatsapp-server/node_modules/
+
+# Session tokens and cache
+whatsapp-server/tokens/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
+# Dependency lock files (keep package.json, ignore lock files)
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+
+# Build outputs
+dist/
+build/
+
+# Cache files
+.cache/
+*.tmp
+*.temp

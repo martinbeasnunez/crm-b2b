@@ -16,6 +16,8 @@
         <button class="tab-btn" data-tab="plantillas">Plantillas</button>
         <button class="tab-btn" data-tab="recordatorios">Recordatorios</button>
         <button class="tab-btn" data-tab="importar">Importar</button>
+        <button class="tab-btn" data-tab="whatsapp-qr">📱 QR WhatsApp</button>
+      </nav>
       </nav>
       <div class="theme-toggle">
         <label for="darkModeToggle" class="sr-only">Modo oscuro</label>
@@ -30,6 +32,7 @@
     <section id="tab-plantillas" class="panel hidden"></section>
     <section id="tab-recordatorios" class="panel hidden"></section>
     <section id="tab-importar" class="panel hidden"></section>
+    <section id="tab-whatsapp-qr" class="panel hidden"></section>
   </main>
 
   <div id="toast"></div>
@@ -39,6 +42,7 @@
   import { initEventListeners } from './js/events.js';
     import { renderLeads } from './js/leads.js';
   import { isDarkMode, applyTheme } from './js/common.js';
+  import './js/whatsapp-integration.js';
 
     async function fetchText(path) {
       try {
@@ -59,18 +63,20 @@
         pipeline: document.getElementById('tab-pipeline'),
         plantillas: document.getElementById('tab-plantillas'),
         recordatorios: document.getElementById('tab-recordatorios'),
-        importar: document.getElementById('tab-importar')
+        importar: document.getElementById('tab-importar'),
+        'whatsapp-qr': document.getElementById('tab-whatsapp-qr')
       };
 
       console.log('Cargando vistas HTML...');
 
-      const [leads, pipeline, templates, reminders, importView, dialogs] = await Promise.all([
+      const [leads, pipeline, templates, reminders, importView, dialogs, whatsappQr] = await Promise.all([
         fetchText('views/leads.html'),
         fetchText('views/pipeline.html'),
         fetchText('views/templates.html'),
         fetchText('views/reminders.html'),
         fetchText('views/import.html'),
-        fetchText('views/dialogs.html')
+        fetchText('views/dialogs.html'),
+        fetchText('views/whatsapp-qr.html')
       ]);
 
       console.log('Vistas cargadas, insertando contenido...');
@@ -81,6 +87,7 @@
       sections.plantillas.innerHTML = templates;
       sections.recordatorios.innerHTML = reminders;
       sections.importar.innerHTML = importView;
+      sections['whatsapp-qr'].innerHTML = whatsappQr;
 
       // Agregar los diálogos al body
       const dialogsContainer = document.createElement('div');
@@ -113,8 +120,20 @@
             applyTheme(!now);
           });
         }
+        
+        // Configurar botón de WhatsApp
+        const whatsappBtn = document.getElementById('whatsapp-config-btn');
+        if (whatsappBtn) {
+          whatsappBtn.addEventListener('click', () => {
+            if (typeof whatsapp !== 'undefined') {
+              whatsapp.showSetupModal();
+            } else {
+              alert('Error: WhatsApp integration no está cargada');
+            }
+          });
+        }
       } catch (e) {
-        console.warn('No pudo inicializarse el toggle de tema', e.message);
+        console.warn('No pudo inicializarse la configuración', e.message);
       }
     });
   </script>

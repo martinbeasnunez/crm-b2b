@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp QR - Conexión</title>
+    <style>
+        .whatsapp-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .qr-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        
+        .qr-code {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            border: 3px solid #25D366;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+        }
+        
+        .qr-placeholder {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-disconnected { background-color: #dc3545; }
+        .status-connecting { background-color: #ffc107; }
+        .status-connected { background-color: #28a745; }
+        
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        
+        .whatsapp-btn:hover {
+            background: #1ea952;
+        }
+        
+        .whatsapp-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status-text {
+            font-size: 18px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #25D366;
+            margin-top: 0;
+        }
+        
+        .instructions ol {
+            margin: 10px 0;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="whatsapp-container">
+        <h1>🔌 Conectar WhatsApp al CRM</h1>
+        
+        <div class="status-text">
+            <span id="statusIndicator" class="status-indicator status-disconnected"></span>
+            <span id="statusText">Desconectado</span>
+        </div>
+        
+        <div class="qr-section">
+            <h2>📱 Código QR para Conectar</h2>
+            <div class="qr-code" id="qrContainer">
+                <div class="qr-placeholder">Generando código QR...</div>
+            </div>
+            
+            <button class="whatsapp-btn" id="refreshBtn" onclick="refreshQR()">
+                🔄 Actualizar QR
+            </button>
+            
+            <button class="whatsapp-btn" id="disconnectBtn" onclick="disconnect()" style="display:none;">
+                ❌ Desconectar
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Instrucciones para Conectar:</h3>
+            <ol>
+                <li><strong>Abre WhatsApp</strong> en tu teléfono móvil</li>
+                <li>Ve a <strong>Configuración</strong> → <strong>Dispositivos vinculados</strong></li>
+                <li>Presiona <strong>"Vincular dispositivo"</strong></li>
+                <li><strong>Escanea el código QR</strong> que aparece arriba</li>
+                <li>¡Listo! Tu WhatsApp estará conectado al CRM</li>
+            </ol>
+            
+            <p><strong>💡 Tip:</strong> Una vez conectado, el CRM podrá enviar mensajes automáticamente cuando muevas tarjetas a "En Conversación".</p>
+        </div>
+        
+        <div id="testSection" style="display:none;">
+            <h3>🧪 Probar Conexión</h3>
+            <input type="text" id="testNumber" placeholder="Número (ej: 5491234567890)" style="padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 5px;">
+            <input type="text" id="testMessage" placeholder="Mensaje de prueba" style="padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 5px; width: 200px;">
+            <button class="whatsapp-btn" onclick="sendTestMessage()">📤 Enviar Prueba</button>
+        </div>
+    </div>
+
+    <script>
+        let checkInterval;
+        let currentStatus = 'disconnected';
+        
+        // Verificar estado cada 3 segundos
+        function startStatusCheck() {
+            checkInterval = setInterval(checkStatus, 3000);
+            checkStatus(); // Verificar inmediatamente
+        }
+        
+        async function checkStatus() {
+            try {
+                const response = await fetch('http://localhost:3001/api/whatsapp/status');
+                const data = await response.json();
+                
+                updateStatus(data.status, data.message);
+                
+                if (data.status === 'qr_ready' && data.qr) {
+                    showQR(data.qr);
+                } else if (data.status === 'authenticated') {
+                    hideQR();
+                    showTestSection();
+                }
+            } catch (error) {
+                console.error('Error checking status:', error);
+                updateStatus('error', 'Error de conexión con el servidor');
+            }
+        }
+        
+        function updateStatus(status, message) {
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            currentStatus = status;
+            
+            // Limpiar clases anteriores
+            indicator.className = 'status-indicator';
+            
+            switch (status) {
+                case 'disconnected':
+                case 'error':
+                    indicator.classList.add('status-disconnected');
+                    text.textContent = message || 'Desconectado';
+                    refreshBtn.style.display = 'inline-block';
+                    disconnectBtn.style.display = 'none';
+                    hideTestSection();
+                    break;
+                    
+                case 'qr_ready':
+                case 'connecting':
+                    indicator.classList.add('status-connecting');
+                    text.textContent = message || 'Esperando escaneo de QR...';
+                    refreshBtn.style.display = 'inline-block';
+                    disconnectBtn.style.display = 'none';
+                    hideTestSection();
+                    break;
+                    
+                case 'authenticated':
+                case 'connected':
+                    indicator.classList.add('status-connected');
+                    text.textContent = message || '✅ WhatsApp Conectado';
+                    refreshBtn.style.display = 'none';
+                    disconnectBtn.style.display = 'inline-block';
+                    showTestSection();
+                    break;
+            }
+        }
+        
+        function showQR(qrData) {
+            const container = document.getElementById('qrContainer');
+            container.innerHTML = `<img src="data:image/png;base64,${qrData}" style="width: 100%; height: 100%; object-fit: contain;">`;
+        }
+        
+        function hideQR() {
+            const container = document.getElementById('qrContainer');
+            container.innerHTML = '<div class="qr-placeholder">✅ WhatsApp Conectado</div>';
+        }
+        
+        function showTestSection() {
+            document.getElementById('testSection').style.display = 'block';
+        }
+        
+        function hideTestSection() {
+            document.getElementById('testSection').style.display = 'none';
+        }
+        
+        async function refreshQR() {
+            try {
+                updateStatus('connecting', 'Generando nuevo QR...');
+                await fetch('http://localhost:3001/api/whatsapp/restart', { method: 'POST' });
+                
+                // Esperar un momento y verificar estado
+                setTimeout(checkStatus, 2000);
+            } catch (error) {
+                console.error('Error refreshing QR:', error);
+                updateStatus('error', 'Error al generar QR');
+            }
+        }
+        
+        async function disconnect() {
+            try {
+                await fetch('http://localhost:3001/api/whatsapp/disconnect', { method: 'POST' });
+                updateStatus('disconnected', 'Desconectado');
+                hideQR();
+                hideTestSection();
+            } catch (error) {
+                console.error('Error disconnecting:', error);
+            }
+        }
+        
+        async function sendTestMessage() {
+            const number = document.getElementById('testNumber').value;
+            const message = document.getElementById('testMessage').value;
+            
+            if (!number || !message) {
+                alert('Por favor completa número y mensaje');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/whatsapp/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ number, message })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ Mensaje enviado correctamente');
+                    document.getElementById('testNumber').value = '';
+                    document.getElementById('testMessage').value = '';
+                } else {
+                    alert('❌ Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('❌ Error enviando mensaje: ' + error.message);
+            }
+        }
+        
+        // Iniciar verificación cuando carga la página
+        window.addEventListener('load', startStatusCheck);
+        
+        // Limpiar interval cuando se cierra la página
+        window.addEventListener('beforeunload', () => {
+            if (checkInterval) clearInterval(checkInterval);
+        });
+    </script>
+</body>
+</html>
