@@ -1,6 +1,6 @@
 import { getState, setState, showToast, scoreICP } from './common.js';
 
-// Función para enviar mensaje automático por WhatsApp Web
+// Función para enviar mensaje automático por WhatsApp - MÉTODOS ALTERNATIVOS
 function sendWhatsAppMessage(lead) {
   const phone = lead.phone ? lead.phone.replace(/\D/g, '') : '';
   const myNumber = '965450086'; // Tu número de WhatsApp
@@ -19,305 +19,179 @@ Gracias por tu interés en nuestros servicios. Me pongo en contacto contigo desd
 
 Saludos!`;
   
-  // Método ULTRA agresivo para envío automático
-  sendViaWhatsAppWebUltraAutomatic(phone, message, lead);
-  
-  showToast(`🚀 Enviando WhatsApp automático a ${lead.contactName}`, 'success');
+  // Mostrar opciones al usuario
+  showWhatsAppOptions(phone, message, lead);
 }
 
-// Función ULTRA automática con múltiples técnicas
-function sendViaWhatsAppWebUltraAutomatic(phone, message, lead) {
-  const encodedMessage = encodeURIComponent(message);
-  const whatsappURL = `https://web.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
-  
-  showToast('🤖 Iniciando envío ULTRA automático...', 'info');
-  
-  // Abrir con configuración específica para automatización máxima
-  const popup = window.open(whatsappURL, 'wa_ultra_sender', 
-    'width=1200,height=800,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
-  
-  if (!popup) {
-    showToast('❌ Habilita pop-ups para envío automático', 'error');
-    return;
-  }
-  
-  // Script ULTRA agresivo que se ejecutará
-  const ultraScript = `
-    console.log('🚀 ULTRA Auto-Sender iniciado');
-    
-    // Variables globales
-    let sendAttempts = 0;
-    let maxAttempts = 50;
-    let isMessageSent = false;
-    
-    // Función para crear eventos muy realistas
-    function createRealEvent(type, target, options = {}) {
-      let event;
-      if (type.startsWith('key')) {
-        event = new KeyboardEvent(type, {
-          key: 'Enter',
-          keyCode: 13,
-          which: 13,
-          charCode: 13,
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-          ...options
-        });
-      } else if (type.startsWith('mouse') || type === 'click') {
-        const rect = target.getBoundingClientRect();
-        event = new MouseEvent(type, {
-          view: window,
-          bubbles: true,
-          cancelable: true,
-          clientX: rect.left + rect.width / 2,
-          clientY: rect.top + rect.height / 2,
-          screenX: rect.left + rect.width / 2,
-          screenY: rect.top + rect.height / 2,
-          button: 0,
-          buttons: 1,
-          composed: true,
-          ...options
-        });
-      } else {
-        event = new Event(type, {
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-          ...options
-        });
-      }
-      return event;
-    }
-    
-    // Función para hacer click ultra realista
-    function ultraClick(element) {
-      if (!element || isMessageSent) return false;
-      
-      try {
-        // Secuencia completa de eventos de mouse
-        element.dispatchEvent(createRealEvent('mouseenter', element));
-        element.dispatchEvent(createRealEvent('mouseover', element));
-        element.dispatchEvent(createRealEvent('mousedown', element));
-        element.dispatchEvent(createRealEvent('mouseup', element));
-        element.dispatchEvent(createRealEvent('click', element));
-        
-        // También con focus
-        if (element.focus) element.focus();
-        if (element.click) element.click();
-        
-        return true;
-      } catch (e) {
-        console.log('Error en ultra click:', e);
-        return false;
-      }
-    }
-    
-    // Función para presionar Enter ultra realista
-    function ultraEnter(element) {
-      if (!element || isMessageSent) return false;
-      
-      try {
-        element.focus();
-        
-        ['keydown', 'keypress', 'input', 'keyup'].forEach(eventType => {
-          element.dispatchEvent(createRealEvent(eventType, element));
-        });
-        
-        return true;
-      } catch (e) {
-        console.log('Error en ultra enter:', e);
-        return false;
-      }
-    }
-    
-    // Función principal de envío
-    function attemptUltraSend() {
-      if (isMessageSent) return;
-      
-      sendAttempts++;
-      console.log('Intento ULTRA', sendAttempts, 'de', maxAttempts);
-      
-      // Buscar elementos con TODOS los selectores posibles
-      const allSendSelectors = [
-        '[data-testid="send"]',
-        'button[aria-label*="Enviar"]', 'button[aria-label*="Send"]',
-        '[data-icon="send"]', 'span[data-testid="send"]',
-        'button[type="submit"]', '.selectable-text[data-testid="send"]',
-        '[data-tab="11"]', '[aria-label*="Send message"]',
-        '[aria-label*="Enviar mensaje"]', 'button[title*="Send"]',
-        'button[title*="Enviar"]', '[role="button"][data-testid="send"]',
-        'span[role="button"][data-icon="send"]',
-        'div[role="button"][aria-label*="Send"]',
-        'div[role="button"][aria-label*="Enviar"]'
-      ];
-      
-      const allTextSelectors = [
-        '[data-testid="conversation-compose-box-input"]',
-        '[contenteditable="true"][data-tab="10"]',
-        'div[contenteditable="true"][spellcheck="true"]',
-        '.selectable-text[contenteditable="true"]',
-        '[role="textbox"][contenteditable="true"]',
-        'div[data-testid="conversation-compose-box-input"]',
-        '[aria-label*="Type a message"]',
-        '[aria-label*="Escribe un mensaje"]'
-      ];
-      
-      let sendButton = null;
-      let textArea = null;
-      
-      // Buscar botón de enviar
-      for (let selector of allSendSelectors) {
-        const elements = document.querySelectorAll(selector);
-        for (let element of elements) {
-          if (element && element.offsetParent !== null && 
-              !element.disabled && !element.hasAttribute('disabled') &&
-              (element.offsetWidth > 0 && element.offsetHeight > 0)) {
-            sendButton = element;
-            break;
-          }
-        }
-        if (sendButton) break;
-      }
-      
-      // Buscar área de texto
-      for (let selector of allTextSelectors) {
-        const elements = document.querySelectorAll(selector);
-        for (let element of elements) {
-          if (element && element.offsetParent !== null &&
-              (element.offsetWidth > 0 && element.offsetHeight > 0)) {
-            textArea = element;
-            break;
-          }
-        }
-        if (textArea) break;
-      }
-      
-      // Si encontramos ambos elementos, intentar enviar
-      if (sendButton && textArea) {
-        console.log('✅ Elementos encontrados, enviando...');
-        
-        setTimeout(() => {
-          // Enfocar área de texto
-          if (textArea.focus) textArea.focus();
-          if (textArea.click) textArea.click();
-          
-          setTimeout(() => {
-            // Método 1: Enter en textarea
-            ultraEnter(textArea);
-            
-            setTimeout(() => {
-              // Método 2: Click en botón
-              if (ultraClick(sendButton)) {
-                console.log('🎉 Mensaje enviado con ULTRA método');
-                isMessageSent = true;
-                
-                try {
-                  window.parent.postMessage('whatsapp-sent', '*');
-                } catch(e) {}
-                
-                setTimeout(() => window.close(), 1500);
-              }
-            }, 300);
-          }, 300);
-        }, 500);
-        
-        return;
-      }
-      
-      // Continuar intentando
-      if (sendAttempts < maxAttempts && !isMessageSent) {
-        setTimeout(attemptUltraSend, 800);
-      } else if (!isMessageSent) {
-        console.log('⚠️ ULTRA envío falló, requerirá acción manual');
-        try {
-          window.parent.postMessage('whatsapp-manual', '*');
-        } catch(e) {}
-      }
-    }
-    
-    // Iniciar cuando todo esté listo
-    function startUltraSequence() {
-      console.log('🚀 Iniciando secuencia ULTRA');
-      setTimeout(attemptUltraSend, 2000);
-    }
-    
-    // Múltiples formas de detectar cuando WhatsApp está listo
-    if (document.readyState === 'complete') {
-      startUltraSequence();
-    } else {
-      window.addEventListener('load', startUltraSequence);
-      document.addEventListener('DOMContentLoaded', startUltraSequence);
-    }
-    
-    // Observer para cambios en el DOM
-    const observer = new MutationObserver(() => {
-      if (!isMessageSent && document.querySelector('[data-testid="send"]')) {
-        setTimeout(attemptUltraSend, 1000);
-      }
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true
-    });
+// Función para mostrar múltiples opciones de envío
+function showWhatsAppOptions(phone, message, lead) {
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
+    align-items: center; justify-content: center;
   `;
   
-  // Inyectar script de múltiples formas
-  const injectUltraScript = () => {
-    try {
-      // Método 1: eval
-      popup.eval(ultraScript);
-      console.log('Script inyectado vía eval');
-    } catch (e1) {
-      try {
-        // Método 2: script element
-        const script = popup.document.createElement('script');
-        script.textContent = ultraScript;
-        popup.document.head.appendChild(script);
-        console.log('Script inyectado vía element');
-      } catch (e2) {
-        try {
-          // Método 3: inline script
-          popup.document.body.innerHTML += '<script>' + ultraScript + '</script>';
-          console.log('Script inyectado inline');
-        } catch (e3) {
-          console.log('No se pudo inyectar script');
-        }
-      }
-    }
+  modal.innerHTML = `
+    <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%;">
+      <h3 style="margin-top: 0; color: #25D366;">📱 Enviar WhatsApp a ${lead.contactName}</h3>
+      <p style="color: #666; margin-bottom: 20px;">Número: +${phone}</p>
+      
+      <div style="margin-bottom: 20px;">
+        <h4>Elige un método de envío:</h4>
+        
+        <button id="method1" style="width: 100%; padding: 15px; margin: 5px 0; border: 2px solid #25D366; background: #25D366; color: white; border-radius: 8px; cursor: pointer; font-size: 14px;">
+          🔗 Método 1: URL de WhatsApp (Aplicación móvil)
+        </button>
+        
+        <button id="method2" style="width: 100%; padding: 15px; margin: 5px 0; border: 2px solid #128C7E; background: #128C7E; color: white; border-radius: 8px; cursor: pointer; font-size: 14px;">
+          📋 Método 2: Copiar mensaje y abrir WhatsApp
+        </button>
+        
+        <button id="method3" style="width: 100%; padding: 15px; margin: 5px 0; border: 2px solid #075E54; background: #075E54; color: white; border-radius: 8px; cursor: pointer; font-size: 14px;">
+          📱 Método 3: Generar QR para WhatsApp
+        </button>
+        
+        <button id="method4" style="width: 100%; padding: 15px; margin: 5px 0; border: 2px solid #34B7F1; background: #34B7F1; color: white; border-radius: 8px; cursor: pointer; font-size: 14px;">
+          💬 Método 4: Telegram (alternativo)
+        </button>
+        
+        <button id="methodClose" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; background: #f5f5f5; color: #666; border-radius: 8px; cursor: pointer;">
+          ❌ Cancelar
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Event listeners para cada método
+  document.getElementById('method1').onclick = () => {
+    document.body.removeChild(modal);
+    sendViaWhatsAppURL(phone, message, lead);
   };
   
-  // Escuchar respuestas
-  const messageHandler = (event) => {
-    if (event.data === 'whatsapp-sent') {
-      window.removeEventListener('message', messageHandler);
-      showToast(`🎉 ¡MENSAJE ENVIADO AUTOMÁTICAMENTE A ${lead.contactName.toUpperCase()}!`, 'success');
-    } else if (event.data === 'whatsapp-manual') {
-      window.removeEventListener('message', messageHandler);
-      showToast('⚡ WhatsApp listo - presiona Enter para enviar', 'warning');
-    }
+  document.getElementById('method2').onclick = () => {
+    document.body.removeChild(modal);
+    sendViaCopyPaste(phone, message, lead);
   };
   
-  window.addEventListener('message', messageHandler);
+  document.getElementById('method3').onclick = () => {
+    document.body.removeChild(modal);
+    sendViaQRCode(phone, message, lead);
+  };
   
-  // Múltiples intentos de inyección con diferentes tiempos
-  popup.addEventListener('load', injectUltraScript);
-  setTimeout(() => popup && !popup.closed && injectUltraScript(), 1000);
-  setTimeout(() => popup && !popup.closed && injectUltraScript(), 2000);
-  setTimeout(() => popup && !popup.closed && injectUltraScript(), 3000);
-  setTimeout(() => popup && !popup.closed && injectUltraScript(), 5000);
+  document.getElementById('method4').onclick = () => {
+    document.body.removeChild(modal);
+    sendViaTelegram(phone, message, lead);
+  };
   
-  // Enfoque agresivo
-  setTimeout(() => {
-    if (popup && !popup.closed) {
-      popup.focus();
-      popup.blur();
-      popup.focus();
-    }
-  }, 1500);
+  document.getElementById('methodClose').onclick = () => {
+    document.body.removeChild(modal);
+  };
 }
+
+// Método 1: URL directa de WhatsApp (abre app móvil si está disponible)
+function sendViaWhatsAppURL(phone, message, lead) {
+  const encodedMessage = encodeURIComponent(message);
+  const whatsappURL = `whatsapp://send?phone=${phone}&text=${encodedMessage}`;
+  const webURL = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
+  
+  showToast('📱 Abriendo WhatsApp...', 'info');
+  
+  // Intentar abrir app nativa primero
+  window.location.href = whatsappURL;
+  
+  // Fallback a web después de 2 segundos
+  setTimeout(() => {
+    window.open(webURL, '_blank');
+    showToast(`📤 WhatsApp abierto para ${lead.contactName}`, 'success');
+  }, 2000);
+}
+
+// Método 2: Copiar mensaje al clipboard y abrir WhatsApp
+function sendViaCopyPaste(phone, message, lead) {
+  // Copiar mensaje al clipboard
+  navigator.clipboard.writeText(message).then(() => {
+    showToast('📋 Mensaje copiado al portapapeles', 'success');
+    
+    // Abrir WhatsApp
+    const whatsappURL = `https://api.whatsapp.com/send?phone=${phone}`;
+    window.open(whatsappURL, '_blank');
+    
+    setTimeout(() => {
+      showToast('✅ Pega el mensaje (Ctrl+V) en WhatsApp y envía', 'info');
+    }, 1500);
+    
+  }).catch(() => {
+    // Fallback si no se puede copiar
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
+      align-items: center; justify-content: center;
+    `;
+    
+    modal.innerHTML = `
+      <div style="background: white; padding: 20px; border-radius: 10px; max-width: 400px; width: 90%;">
+        <h3>📋 Copia este mensaje:</h3>
+        <textarea readonly style="width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">${message}</textarea>
+        <button onclick="this.parentElement.parentElement.remove(); window.open('https://api.whatsapp.com/send?phone=${phone}', '_blank')" 
+                style="width: 100%; padding: 10px; margin-top: 10px; background: #25D366; color: white; border: none; border-radius: 5px; cursor: pointer;">
+          📱 Abrir WhatsApp
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+  });
+}
+
+// Método 3: Generar código QR
+function sendViaQRCode(phone, message, lead) {
+  const encodedMessage = encodeURIComponent(message);
+  const whatsappURL = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
+  
+  // Usar API de QR code
+  const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(whatsappURL)}`;
+  
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
+    align-items: center; justify-content: center;
+  `;
+  
+  modal.innerHTML = `
+    <div style="background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 400px;">
+      <h3 style="color: #25D366;">� Escanea con tu móvil</h3>
+      <img src="${qrURL}" alt="QR Code" style="max-width: 100%; margin: 20px 0;" />
+      <p style="color: #666; font-size: 14px;">Escanea este código QR con tu teléfono para abrir WhatsApp con el mensaje listo</p>
+      <button onclick="this.parentElement.parentElement.remove()" 
+              style="padding: 10px 20px; background: #25D366; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        ✅ Cerrar
+      </button>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  showToast(`📱 QR generado para ${lead.contactName}`, 'success');
+}
+
+// Método 4: Telegram como alternativa
+function sendViaTelegram(phone, message, lead) {
+  const encodedMessage = encodeURIComponent(message);
+  const telegramURL = `https://t.me/share/url?url=&text=${encodedMessage}`;
+  
+  window.open(telegramURL, '_blank');
+  showToast(`📤 Telegram abierto para enviar a ${lead.contactName}`, 'info');
+  
+  setTimeout(() => {
+    showToast('💡 Recuerda agregar el número de teléfono en Telegram', 'warning');
+  }, 2000);
+}
+
+export function renderPipeline() {
 
 // Función mejorada para envío automático real
 function sendViaWhatsAppWebAutomatic(phone, message, lead) {
