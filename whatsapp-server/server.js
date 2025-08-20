@@ -8,15 +8,30 @@ const PORT = 3001;
 
 // Configurar CORS más permisivo
 app.use(cors({
-  origin: ['http://localhost:8000', 'http://127.0.0.1:8000', '*'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  origin: true, // Permitir cualquier origen en desarrollo
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
+
+// Headers adicionales para asegurar CORS
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // Middleware adicional para debugging
 app.use((req, res, next) => {
   console.log(`📡 ${req.method} ${req.path} - ${new Date().toLocaleTimeString()}`);
+  console.log(`🌐 Origin: ${req.headers.origin || 'No origin'}`);
   next();
 });
 
