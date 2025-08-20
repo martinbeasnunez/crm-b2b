@@ -6,7 +6,20 @@ const QRCode = require('qrcode');
 const app = express();
 const PORT = 3001;
 
-app.use(cors());
+// Configurar CORS más permisivo
+app.use(cors({
+  origin: ['http://localhost:8000', 'http://127.0.0.1:8000', '*'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+// Middleware adicional para debugging
+app.use((req, res, next) => {
+  console.log(`📡 ${req.method} ${req.path} - ${new Date().toLocaleTimeString()}`);
+  next();
+});
+
 app.use(express.json());
 
 let client = null;
