@@ -48,3 +48,5 @@ Despliegue a Render/Railway
 Usa la imagen publicada en GHCR (ejemplo: `ghcr.io/<OWNER>/crm-whatsapp-server:latest`) o conecta directamente el repo a Railway/Render; establece variables de entorno si necesitas configuraciones adicionales.
 
 <!-- trigger-publish: force workflow run -->
+
+# Trigger CI: force publish workflow run
