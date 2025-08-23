@@ -1,7 +1,7 @@
 // Configuración para integración WhatsApp
 class WhatsAppIntegration {
   constructor() {
-    this.serverUrl = 'https://organic-spoon-q7xqjwgpvqf9qrp-3001.app.github.dev';
+    this.serverUrl = 'https://hot-wings-smell.loca.lt';
     this.isConnected = false;
     this.checkInterval = null;
   }
@@ -201,7 +201,7 @@ window.sendWhatsAppFromPipeline = async function(lead) {
       showToast('⚠️ WhatsApp no conectado. Abre la consola para configurar conexión.', 'warning');
       console.log('🔧 Para conectar WhatsApp:');
       console.log('1. Ejecuta: cd whatsapp-server && node server.js');
-      console.log('2. Visita: https://organic-spoon-q7xqjwgpvqf9qrp-3001.app.github.dev y escanea el QR');
+  console.log('2. Visita: https://hot-wings-smell.loca.lt y escanea el QR');
       console.log('3. Una vez conectado, vuelve a mover la tarjeta');
       return;
     }
