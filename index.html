@@ -39,6 +39,11 @@
 
   <!-- Script de WhatsApp QR debe cargarse antes que los módulos -->
   
+  <!-- Forzar uso de servidor WhatsApp local durante desarrollo -->
+  <script>
+    window.WA_SERVER_URL = 'http://localhost:3001';
+  </script>
+
   <script type="module">
     import { showTab } from './js/navigation.js';
     import { initEventListeners } from './js/events.js';
