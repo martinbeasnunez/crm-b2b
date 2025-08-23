@@ -46,3 +46,5 @@ docker run -p 3001:3001 crm-whatsapp-server:local
 Despliegue a Render/Railway
 ---------------------------
 Usa la imagen publicada en GHCR (ejemplo: `ghcr.io/<OWNER>/crm-whatsapp-server:latest`) o conecta directamente el repo a Railway/Render; establece variables de entorno si necesitas configuraciones adicionales.
+
+<!-- trigger-publish: force workflow run -->
