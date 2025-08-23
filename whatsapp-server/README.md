@@ -51,4 +51,6 @@ Usa la imagen publicada en GHCR (ejemplo: `ghcr.io/<OWNER>/crm-whatsapp-server:l
 
 # Trigger CI: force publish workflow run
 
+<!-- touched: 2025-08-23T00:00:00Z -->
+
 # trigger publish workflow run
