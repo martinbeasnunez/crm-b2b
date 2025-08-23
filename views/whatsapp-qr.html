@@ -4,7 +4,7 @@
     <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; margin: 20px 0; border-left: 4px solid #ffc107;">
         <p><strong>🔧 Para conectar WhatsApp al CRM:</strong></p>
         <ol style="text-align: left; max-width: 500px; margin: 0 auto;">
-            <li>Abre en otra pestaña: <a href="https://crmwhatsapp3001.loca.lt" target="_blank" style="color: #007bff; text-decoration: underline;">Servidor WhatsApp</a></li>
+            <li>Abre en otra pestaña: <a id="wa-server-link" href="#" target="_blank" style="color: #007bff; text-decoration: underline;">Servidor WhatsApp</a></li>
             <li>Escanea el código QR que aparece</li>
             <li>Una vez conectado, regresa al Pipeline</li>
             <li>Arrastra cualquier tarjeta a "En Conversación"</li>
@@ -33,7 +33,7 @@
     </div>
 
     <div style="margin: 30px 0;">
-    <button onclick="window.open('https://crmwhatsapp3001.loca.lt', '_blank')" 
+    <button id="wa-open-btn" onclick="window.open('#', '_blank')" 
                 style="background: #25D366; color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-size: 16px; margin: 10px;">
             🔗 Abrir WhatsApp QR
         </button>
@@ -69,14 +69,15 @@ function checkServerStatus() {
     const statusEl = document.getElementById('server-status');
     statusEl.textContent = '🔄 Verificando...';
     
-    fetch('https://crmwhatsapp3001.loca.lt/api/whatsapp/status')
+    const WA_SERVER = window.WA_SERVER_URL || 'http://localhost:3001';
+    fetch(WA_SERVER + '/api/whatsapp/status')
         .then(response => response.json())
         .then(data => {
             if (data.authenticated) {
                 statusEl.innerHTML = '✅ <strong style="color: #28a745;">WhatsApp Conectado</strong> - ¡Listo para enviar mensajes!';
                 document.getElementById('qr-section').style.display = 'none';
             } else {
-                statusEl.innerHTML = '⚠️ <strong style="color: #ffc107;">WhatsApp NO conectado</strong> - Escanea el QR o <a href="https://crmwhatsapp3001.loca.lt" target="_blank" style="color: #007bff;">ábrelo en otra pestaña</a>';
+                statusEl.innerHTML = '⚠️ <strong style="color: #ffc107;">WhatsApp NO conectado</strong> - Escanea el QR o <a id="wa-server-link-2" href="#" target="_blank" style="color: #007bff;">ábrelo en otra pestaña</a>';
                 document.getElementById('qr-section').style.display = 'block';
                 loadQRCode();
             }
@@ -93,7 +94,8 @@ function loadQRCode() {
     
     qrPlaceholder.textContent = '🔄 Cargando código QR...';
     
-    fetch('https://crmwhatsapp3001.loca.lt/api/whatsapp/status')
+    const WA_SERVER2 = window.WA_SERVER_URL || 'http://localhost:3001';
+    fetch(WA_SERVER2 + '/api/whatsapp/status')
         .then(response => response.json())
         .then(data => {
             if (data.qr) {

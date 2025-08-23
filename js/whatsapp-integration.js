@@ -1,7 +1,9 @@
 // Configuración para integración WhatsApp
 class WhatsAppIntegration {
   constructor() {
-  this.serverUrl = 'https://crmwhatsapp3001.loca.lt';
+  // Allow overriding the server URL from the page (useful for local testing)
+  // Example: set window.WA_SERVER_URL = 'https://my-public-url' in index.html
+  this.serverUrl = (window && window.WA_SERVER_URL) ? window.WA_SERVER_URL : 'http://localhost:3001';
     this.isConnected = false;
     this.checkInterval = null;
   }
@@ -201,7 +203,7 @@ window.sendWhatsAppFromPipeline = async function(lead) {
       showToast('⚠️ WhatsApp no conectado. Abre la consola para configurar conexión.', 'warning');
       console.log('🔧 Para conectar WhatsApp:');
       console.log('1. Ejecuta: cd whatsapp-server && node server.js');
-  console.log('2. Visita: https://crmwhatsapp3001.loca.lt y escanea el QR');
+  console.log('2. Visita: ' + this.serverUrl + ' y escanea el QR');
       console.log('3. Una vez conectado, vuelve a mover la tarjeta');
       return;
     }
