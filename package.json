@@ -6,9 +6,25 @@
     "test": "jest --runInBand --coverage"
   },
   "devDependencies": {
+    "@babel/core": "^7.22.0",
+    "@babel/preset-env": "^7.22.0",
+    "babel-jest": "^29.0.0",
+    "cross-env": "^7.0.3",
     "jest": "^29.0.0",
     "jsdom": "^22.0.0",
-    "cross-env": "^7.0.3",
     "whatwg-fetch": "^3.6.2"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+  "setupFiles": ["<rootDir>/test/setupJest.js"],
+  "collectCoverageFrom": [
+      "js/**/*.js"
+    ]
+  },
+  "dependencies": {
+    "jest-environment-jsdom": "^30.0.5"
   }
 }
