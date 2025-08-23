@@ -1,0 +1,29 @@
+name: Build and publish WhatsApp server image
+
+on:
+  push:
+    paths:
+      - 'whatsapp-server/**'
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: ./whatsapp-server
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/crm-whatsapp-server:latest
