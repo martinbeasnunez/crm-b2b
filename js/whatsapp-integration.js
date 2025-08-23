@@ -11,7 +11,7 @@ class WhatsAppIntegration {
   // Verificar estado de conexión
   async checkStatus() {
     try {
-      const response = await fetch(`${this.serverUrl}/api/status`);
+  const response = await fetch(`${this.serverUrl.replace(/\/$/, '')}/api/whatsapp/status`);
       const data = await response.json();
       this.isConnected = data.authenticated;
       return data;
@@ -25,9 +25,10 @@ class WhatsAppIntegration {
   // Obtener QR Code
   async getQRCode() {
     try {
-      const response = await fetch(`${this.serverUrl}/api/qr`);
-      const data = await response.json();
-      return data;
+  // the status endpoint returns the QR as `qr` when not authenticated
+  const response = await fetch(`${this.serverUrl.replace(/\/$/, '')}/api/whatsapp/status`);
+  const data = await response.json();
+  return data;
     } catch (error) {
       console.error('Error getting QR code:', error);
       return { error: 'No se pudo obtener el QR' };
@@ -37,13 +38,15 @@ class WhatsAppIntegration {
   // Enviar mensaje
   async sendMessage(phone, message, contactName = '') {
     try {
-      const response = await fetch(`${this.serverUrl}/api/send-message`, {
+      // Use server endpoint /api/whatsapp/send (expects { number, message })
+      const url = `${this.serverUrl.replace(/\/$/, '')}/api/whatsapp/send`;
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          phone: phone,
+          number: phone,
           message: message,
           contactName: contactName
         })
@@ -65,7 +68,7 @@ class WhatsAppIntegration {
   // Reiniciar sesión
   async restart() {
     try {
-      const response = await fetch(`${this.serverUrl}/api/restart`, {
+  const response = await fetch(`${this.serverUrl.replace(/\/$/, '')}/api/whatsapp/restart`, {
         method: 'POST'
       });
       const data = await response.json();
@@ -190,11 +193,16 @@ class WhatsAppIntegration {
   }
 }
 
-// Instancia global
-const whatsapp = new WhatsAppIntegration();
+// Instancia global (solo crear en navegador)
+let whatsapp;
+if (typeof window !== 'undefined') {
+  whatsapp = new WhatsAppIntegration();
+  // exponer en window
+  window.whatsapp = whatsapp;
+}
 
 // Función para enviar WhatsApp desde el pipeline
-window.sendWhatsAppFromPipeline = async function(lead) {
+async function sendWhatsAppFromPipelineImpl(lead) {
   try {
     // Verificar conexión
     const status = await whatsapp.checkStatus();
@@ -203,7 +211,8 @@ window.sendWhatsAppFromPipeline = async function(lead) {
       showToast('⚠️ WhatsApp no conectado. Abre la consola para configurar conexión.', 'warning');
       console.log('🔧 Para conectar WhatsApp:');
       console.log('1. Ejecuta: cd whatsapp-server && node server.js');
-  console.log('2. Visita: ' + this.serverUrl + ' y escanea el QR');
+  const serverUrlForMsg = (typeof whatsapp !== 'undefined' && whatsapp) ? whatsapp.serverUrl : (typeof window !== 'undefined' && window.WA_SERVER_URL ? window.WA_SERVER_URL : 'http://localhost:3001');
+  console.log('2. Visita: ' + serverUrlForMsg + ' y escanea el QR');
       console.log('3. Una vez conectado, vuelve a mover la tarjeta');
       return;
     }
@@ -239,7 +248,12 @@ Saludos!`;
   }
 }
 
-// Exportar para uso global
+// Exponer en window si existe
+if (typeof window !== 'undefined') {
+  window.sendWhatsAppFromPipeline = sendWhatsAppFromPipelineImpl;
+}
+
+// Exportar para uso en Node (tests, etc.)
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { WhatsAppIntegration, whatsapp };
+  module.exports = { WhatsAppIntegration, whatsapp, sendWhatsAppFromPipeline: sendWhatsAppFromPipelineImpl };
 }
