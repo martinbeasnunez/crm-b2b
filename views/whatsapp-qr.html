@@ -1,279 +1,117 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp QR - Conexión</title>
-    <style>
-        .whatsapp-container { max-width: 800px; margin: 20px auto; padding: 20px; text-align: center; }
-        .qr-section { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 20px 0; }
-        .qr-code { width: 300px; height: 300px; margin: 20px auto; border: 3px solid #25D366; border-radius: 15px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; }
-        .qr-placeholder { color: #666; font-size: 16px; }
-        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
-        .status-disconnected { background-color: #dc3545; }
-        .status-connecting { background-color: #ffc107; }
-        .status-connected { background-color: #28a745; }
-        .status-text { margin: 15px 0; font-size: 18px; font-weight: bold; }
-        .whatsapp-btn { background: #25D366; color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; margin: 8px; transition: all 0.3s ease; }
-        .whatsapp-btn:hover { background: #1ea952; transform: translateY(-2px); }
-        .instructions { text-align: left; max-width: 600px; margin: 30px auto; padding: 20px; background: #f8f9fa; border-radius: 10px; }
-        .instructions ol { line-height: 1.8; }
-        .instructions li { margin: 10px 0; }
-        .timer-warning { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 10px; color: #856404; margin-bottom: 15px; }
-    </style>
-</head>
-<body>
-    <div class="whatsapp-container">
-        <h1>🔌 Conectar WhatsApp al CRM</h1>
-        
-        <div class="status-text">
-            <span id="statusIndicator" class="status-indicator status-disconnected"></span>
-            <span id="statusText">Desconectado</span>
-        </div>
-        
-        <div class="qr-section">
-            <h2>📱 Código QR para Conectar</h2>
-            
-            <div id="qrTimer" style="display:none;">
-                <div class="timer-warning">
-                    ⏰ <span id="timeRemaining">60</span> segundos restantes para escanear
-                </div>
-            </div>
-            
-            <div class="qr-code" id="qrContainer">
-                <div class="qr-placeholder">Generando código QR...</div>
-            </div>
-            
-            <button class="whatsapp-btn" id="refreshBtn" onclick="refreshQR()">🔄 Nuevo QR</button>
-            <button class="whatsapp-btn" id="disconnectBtn" onclick="disconnect()" style="display:none;">❌ Desconectar</button>
-            <button class="whatsapp-btn" id="autoRefreshBtn" onclick="toggleAutoRefresh()" style="background: #17a2b8;">🔄 Auto-renovar: <span id="autoRefreshStatus">OFF</span></button>
-        </div>
-        
-        <div class="instructions">
-            <h3>📋 Instrucciones para Conectar:</h3>
-            <ol>
-                <li><strong>Abre WhatsApp</strong> en tu teléfono móvil</li>
-                <li>Ve a <strong>Configuración</strong> → <strong>Dispositivos vinculados</strong></li>
-                <li>Presiona <strong>"Vincular dispositivo"</strong></li>
-                <li><strong>Escanea el código QR</strong> que aparece arriba</li>
-                <li>¡Listo! Tu WhatsApp estará conectado al CRM</li>
-            </ol>
-            
-            <p><strong>💡 Tip:</strong> Activa "Auto-renovar" para que el QR se genere automáticamente cada 60 segundos.</p>
-        </div>
-        
-        <div id="testSection" style="display:none;">
-            <h3>🧪 Probar Conexión</h3>
-            <input type="text" id="testNumber" placeholder="Número (ej: 5491234567890)" style="padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 5px;">
-            <input type="text" id="testMessage" placeholder="Mensaje de prueba" style="padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 5px; width: 200px;">
-            <button class="whatsapp-btn" onclick="sendTestMessage()">📤 Enviar Prueba</button>
-        </div>
+<div style="max-width: 800px; margin: 20px auto; padding: 20px; text-align: center;">
+    <h2>📱 Conexión WhatsApp</h2>
+    
+    <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; margin: 20px 0; border-left: 4px solid #ffc107;">
+        <p><strong>🔧 Para conectar WhatsApp al CRM:</strong></p>
+        <ol style="text-align: left; max-width: 500px; margin: 0 auto;">
+            <li>Abre en otra pestaña: <a href="https://organic-spoon-q7xqjwgpvqf9qrp-3001.app.github.dev" target="_blank" style="color: #007bff; text-decoration: underline;">Servidor WhatsApp</a></li>
+            <li>Escanea el código QR que aparece</li>
+            <li>Una vez conectado, regresa al Pipeline</li>
+            <li>Arrastra cualquier tarjeta a "En Conversación"</li>
+            <li>¡El mensaje se enviará automáticamente! 🚀</li>
+        </ol>
     </div>
 
-    <script>
-        var checkInterval, currentStatus = 'disconnected', serverRestartTimeout, qrTimeout = 0;
-        var qrTimerInterval, qrTimeRemaining = 60, autoRefreshEnabled = false;
+    <div style="background: #d4edda; border-radius: 10px; padding: 15px; margin: 20px 0; border-left: 4px solid #28a745;">
+        <h3>✅ ¿Cómo funciona?</h3>
+        <p style="text-align: left; max-width: 600px; margin: 0 auto;">
+            <strong>El WhatsApp está integrado directamente en el Pipeline:</strong><br>
+            • Cuando arrastras una tarjeta a <strong>"En Conversación"</strong><br>
+            • Se envía automáticamente un mensaje personalizado al contacto<br>
+            • No necesitas hacer nada más, ¡es automático! 🎯
+        </p>
+    </div>
 
-        function startStatusCheck() {
-            console.log('Iniciando verificación...');
-            checkStatus();
-            checkInterval = setInterval(checkStatus, 2000);
-        }
+    <div style="background: #fff3cd; border-radius: 10px; padding: 15px; margin: 20px 0; border-left: 4px solid #ffc107;">
+        <h3>⚠️ Importante</h3>
+        <p style="text-align: left; max-width: 600px; margin: 0 auto;">
+            • El servidor WhatsApp debe estar ejecutándose<br>
+            • Solo necesitas conectar WhatsApp <strong>una vez</strong><br>
+            • Los mensajes se envían solo cuando mueves tarjetas a "En Conversación"<br>
+            • Asegúrate de que los leads tengan número de teléfono
+        </p>
+    </div>
 
-        function checkStatus() {
-            fetch('http://localhost:3001/api/whatsapp/status')
-                .then(function(response) {
-                    if (!response.ok) throw new Error('HTTP ' + response.status);
-                    return response.json();
-                })
-                .then(function(data) {
-                    currentStatus = data.status;
-                    updateStatus(data.status, data.message);
-                    
-                    if (data.qr && data.status === 'qr_ready') {
-                        showQR(data.qr);
-                        qrTimeout = 0;
-                    } else if (data.status === 'authenticated' || data.status === 'connected') {
-                        hideQR();
-                        qrTimeout = 0;
-                    } else {
-                        qrTimeout++;
-                        if (qrTimeout > 30 && data.status !== 'authenticated' && data.status !== 'connected') {
-                            autoRestartServer();
-                        }
-                    }
-                })
-                .catch(function(error) {
-                    qrTimeout++;
-                    if (qrTimeout > 10) autoRestartServer();
-                    updateStatus('error', 'Error de conexión');
-                });
-        }
+    <div style="margin: 30px 0;">
+        <button onclick="window.open('https://organic-spoon-q7xqjwgpvqf9qrp-3001.app.github.dev', '_blank')" 
+                style="background: #25D366; color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-size: 16px; margin: 10px;">
+            🔗 Abrir WhatsApp QR
+        </button>
+        <button onclick="showTab('pipeline')" 
+                style="background: #007bff; color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-size: 16px; margin: 10px;">
+            📊 Ir al Pipeline
+        </button>
+    </div>
 
-        function autoRestartServer() {
-            if (serverRestartTimeout) return;
-            
-            updateStatus('connecting', 'Reiniciando automáticamente...');
-            serverRestartTimeout = setTimeout(function() { serverRestartTimeout = null; }, 10000);
-            
-            fetch('http://localhost:3001/api/whatsapp/restart', { method: 'POST' })
-                .then(function() {
-                    qrTimeout = 0;
-                    setTimeout(checkStatus, 5000);
-                })
-                .catch(function() {
-                    updateStatus('error', 'Error al reiniciar');
-                });
-        }
+    <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; margin: 20px 0;">
+        <h3>🚀 Estado del servidor</h3>
+        <p id="server-status" style="margin: 10px 0;">Verificando conexión...</p>
+        <button onclick="checkServerStatus()" 
+                style="background: #17a2b8; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+            🔄 Verificar Estado
+        </button>
+    </div>
 
-        function updateStatus(status, message) {
-            var indicator = document.getElementById('statusIndicator');
-            var text = document.getElementById('statusText');
-            var refreshBtn = document.getElementById('refreshBtn');
-            var disconnectBtn = document.getElementById('disconnectBtn');
-            
-            indicator.className = 'status-indicator';
-            
-            if (status === 'disconnected' || status === 'error') {
-                indicator.classList.add('status-disconnected');
-                text.textContent = message || 'Desconectado';
-                refreshBtn.style.display = 'inline-block';
-                disconnectBtn.style.display = 'none';
-                hideTestSection();
-            } else if (status === 'qr_ready' || status === 'connecting') {
-                indicator.classList.add('status-connecting');
-                text.textContent = message || 'Esperando QR...';
-                refreshBtn.style.display = 'inline-block';
-                disconnectBtn.style.display = 'none';
-                hideTestSection();
-            } else if (status === 'authenticated' || status === 'connected') {
-                indicator.classList.add('status-connected');
-                text.textContent = 'WhatsApp Conectado';
-                refreshBtn.style.display = 'none';
-                disconnectBtn.style.display = 'inline-block';
-                showTestSection();
-            }
-        }
+    <div id="qr-section" style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 20px 0; display: none;">
+        <h3>📱 Código QR WhatsApp</h3>
+        <div id="qr-container" style="width: 300px; height: 300px; margin: 20px auto; border: 3px solid #25D366; border-radius: 15px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+            <div id="qr-placeholder" style="color: #666; font-size: 16px;">🔄 Cargando código QR...</div>
+        </div>
+        <button onclick="loadQRCode()" 
+                style="background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px;">
+            🔄 Refrescar QR
+        </button>
+    </div>
+</div>
 
-        function showQR(qrData) {
-            document.getElementById('qrContainer').innerHTML = '<img src="data:image/png;base64,' + qrData + '" style="width: 100%; height: 100%; object-fit: contain;">';
-            startQRTimer();
-        }
-
-        function hideQR() {
-            document.getElementById('qrContainer').innerHTML = '<div class="qr-placeholder">WhatsApp Conectado</div>';
-            stopQRTimer();
-        }
-
-        function startQRTimer() {
-            var timerDiv = document.getElementById('qrTimer');
-            var timeSpan = document.getElementById('timeRemaining');
-            
-            qrTimeRemaining = 60;
-            timerDiv.style.display = 'block';
-            
-            qrTimerInterval = setInterval(function() {
-                qrTimeRemaining--;
-                timeSpan.textContent = qrTimeRemaining;
-                
-                if (qrTimeRemaining <= 0) {
-                    stopQRTimer();
-                    if (autoRefreshEnabled) {
-                        setTimeout(refreshQR, 2000);
-                    }
-                }
-            }, 1000);
-        }
-
-        function stopQRTimer() {
-            document.getElementById('qrTimer').style.display = 'none';
-            if (qrTimerInterval) {
-                clearInterval(qrTimerInterval);
-                qrTimerInterval = null;
-            }
-        }
-
-        function toggleAutoRefresh() {
-            autoRefreshEnabled = !autoRefreshEnabled;
-            var statusSpan = document.getElementById('autoRefreshStatus');
-            var btn = document.getElementById('autoRefreshBtn');
-            
-            if (autoRefreshEnabled) {
-                statusSpan.textContent = 'ON';
-                btn.style.background = '#28a745';
+<script>
+function checkServerStatus() {
+    const statusEl = document.getElementById('server-status');
+    statusEl.textContent = '🔄 Verificando...';
+    
+    fetch('https://organic-spoon-q7xqjwgpvqf9qrp-3001.app.github.dev/api/whatsapp/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.authenticated) {
+                statusEl.innerHTML = '✅ <strong style="color: #28a745;">WhatsApp Conectado</strong> - ¡Listo para enviar mensajes!';
+                document.getElementById('qr-section').style.display = 'none';
             } else {
-                statusSpan.textContent = 'OFF';
-                btn.style.background = '#17a2b8';
+                statusEl.innerHTML = '⚠️ <strong style="color: #ffc107;">WhatsApp NO conectado</strong> - Escanea el QR o <a href="https://organic-spoon-q7xqjwgpvqf9qrp-3001.app.github.dev" target="_blank" style="color: #007bff;">ábrelo en otra pestaña</a>';
+                document.getElementById('qr-section').style.display = 'block';
+                loadQRCode();
             }
-        }
-
-        function refreshQR() {
-            updateStatus('connecting', 'Generando nuevo QR...');
-            stopQRTimer();
-            
-            fetch('http://localhost:3001/api/whatsapp/restart', { method: 'POST' })
-                .then(function(response) {
-                    if (response.ok) {
-                        qrTimeout = 0;
-                        setTimeout(checkStatus, 3000);
-                    }
-                })
-                .catch(function() {
-                    updateStatus('error', 'Error al generar QR');
-                });
-        }
-
-        function disconnect() {
-            fetch('http://localhost:3001/api/whatsapp/disconnect', { method: 'POST' })
-                .then(function() {
-                    updateStatus('disconnected', 'Desconectado');
-                    hideQR();
-                    hideTestSection();
-                });
-        }
-
-        function sendTestMessage() {
-            var number = document.getElementById('testNumber').value;
-            var message = document.getElementById('testMessage').value;
-            
-            if (!number || !message) {
-                alert('Por favor completa número y mensaje');
-                return;
-            }
-            
-            fetch('http://localhost:3001/api/whatsapp/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ number: number, message: message })
-            })
-            .then(function(response) { return response.json(); })
-            .then(function(result) {
-                if (result.success) {
-                    alert('Mensaje enviado correctamente');
-                    document.getElementById('testNumber').value = '';
-                    document.getElementById('testMessage').value = '';
-                } else {
-                    alert('Error: ' + result.error);
-                }
-            })
-            .catch(function(error) {
-                alert('Error: ' + error.message);
-            });
-        }
-
-        function showTestSection() {
-            document.getElementById('testSection').style.display = 'block';
-        }
-
-        function hideTestSection() {
-            document.getElementById('testSection').style.display = 'none';
-        }
-
-        window.addEventListener('load', startStatusCheck);
-        window.addEventListener('beforeunload', function() {
-            if (checkInterval) clearInterval(checkInterval);
-            if (qrTimerInterval) clearInterval(qrTimerInterval);
+        })
+        .catch(error => {
+            statusEl.innerHTML = '❌ <strong style="color: #dc3545;">Servidor no disponible</strong> - Inicia el servidor WhatsApp';
+            document.getElementById('qr-section').style.display = 'none';
         });
-    </script>
-</body>
-</html>
+}
+
+function loadQRCode() {
+    const qrContainer = document.getElementById('qr-container');
+    const qrPlaceholder = document.getElementById('qr-placeholder');
+    
+    qrPlaceholder.textContent = '🔄 Cargando código QR...';
+    
+    fetch('https://organic-spoon-q7xqjwgpvqf9qrp-3001.app.github.dev/api/whatsapp/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.qr) {
+                qrContainer.innerHTML = '<img src="' + data.qr + '" style="width: 100%; height: 100%; object-fit: contain;" />';
+            } else if (data.authenticated) {
+                qrPlaceholder.textContent = '✅ WhatsApp ya está conectado';
+            } else {
+                qrPlaceholder.textContent = '⚠️ QR no disponible. Reinicia el servidor.';
+            }
+        })
+        .catch(error => {
+            qrPlaceholder.textContent = '❌ Error al cargar QR';
+        });
+}
+
+// Verificar estado al cargar
+setTimeout(checkServerStatus, 1000);
+
+// Actualizar estado cada 5 segundos
+setInterval(checkServerStatus, 5000);
+</script>

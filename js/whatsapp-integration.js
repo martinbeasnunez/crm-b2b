@@ -1,7 +1,7 @@
 // Configuración para integración WhatsApp
 class WhatsAppIntegration {
   constructor() {
-    this.serverUrl = 'http://localhost:3001';
+    this.serverUrl = 'https://organic-spoon-q7xqjwgpvqf9qrp-3001.app.github.dev';
     this.isConnected = false;
     this.checkInterval = null;
   }
@@ -192,24 +192,28 @@ class WhatsAppIntegration {
 const whatsapp = new WhatsAppIntegration();
 
 // Función para enviar WhatsApp desde el pipeline
-async function sendWhatsAppFromPipeline(lead) {
-  // Verificar conexión
-  const status = await whatsapp.checkStatus();
-  
-  if (!status.authenticated) {
-    showToast('❌ WhatsApp no conectado. Configura la conexión primero.', 'error');
-    whatsapp.showSetupModal();
-    return;
-  }
+window.sendWhatsAppFromPipeline = async function(lead) {
+  try {
+    // Verificar conexión
+    const status = await whatsapp.checkStatus();
+    
+    if (!status.authenticated) {
+      showToast('⚠️ WhatsApp no conectado. Abre la consola para configurar conexión.', 'warning');
+      console.log('🔧 Para conectar WhatsApp:');
+      console.log('1. Ejecuta: cd whatsapp-server && node server.js');
+      console.log('2. Visita: https://organic-spoon-q7xqjwgpvqf9qrp-3001.app.github.dev y escanea el QR');
+      console.log('3. Una vez conectado, vuelve a mover la tarjeta');
+      return;
+    }
 
-  const phone = lead.phone ? lead.phone.replace(/\D/g, '') : '';
-  
-  if (!phone) {
-    showToast('❌ Este lead no tiene número de teléfono', 'error');
-    return;
-  }
+    const phone = lead.phone ? lead.phone.replace(/\D/g, '') : '';
+    
+    if (!phone) {
+      showToast('❌ Este lead no tiene número de teléfono', 'error');
+      return;
+    }
 
-  const message = `Hola ${lead.contactName || 'estimado/a'}, 
+    const message = `Hola ${lead.contactName || 'estimado/a'}, 
 
 Gracias por tu interés en nuestros servicios. Me pongo en contacto contigo desde ${lead.companyName || 'tu empresa'} para conversar sobre cómo podemos ayudarte.
 
@@ -217,14 +221,19 @@ Gracias por tu interés en nuestros servicios. Me pongo en contacto contigo desd
 
 Saludos!`;
 
-  showToast('📤 Enviando mensaje por WhatsApp...', 'info');
+    showToast('📤 Enviando mensaje por WhatsApp...', 'info');
 
-  const result = await whatsapp.sendMessage(phone, message, lead.contactName);
+    const result = await whatsapp.sendMessage(phone, message, lead.contactName);
 
-  if (result.success) {
-    showToast(`✅ Mensaje enviado a ${lead.contactName}`, 'success');
-  } else {
-    showToast(`❌ Error: ${result.error}`, 'error');
+    if (result.success) {
+      showToast(`✅ Mensaje enviado a ${lead.contactName} (${phone})`, 'success');
+    } else {
+      showToast(`❌ Error: ${result.error}`, 'error');
+      console.error('Error detallado:', result);
+    }
+  } catch (error) {
+    console.error('Error en sendWhatsAppFromPipeline:', error);
+    showToast('❌ Error al enviar WhatsApp. Verifica que el servidor esté funcionando.', 'error');
   }
 }
 
