@@ -50,3 +50,5 @@ Usa la imagen publicada en GHCR (ejemplo: `ghcr.io/<OWNER>/crm-whatsapp-server:l
 <!-- trigger-publish: force workflow run -->
 
 # Trigger CI: force publish workflow run
+
+# trigger publish workflow run
