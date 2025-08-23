@@ -7,8 +7,9 @@ WORKDIR /app
 # Copiar package.json y package-lock si existe para cachear npm install
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm ci --only=production
+# Instalar dependencias de producción (usar install si no hay package-lock.json)
+# --omit=dev evita instalar devDependencies, --no-audit/--no-fund reducen salida
+RUN npm install --omit=dev --no-audit --no-fund
 
 # Copiar el resto del código
 COPY . .
